@@ -1,4 +1,5 @@
 #include "Vaddr_converter.h"
+#include "verilated_vcd_c.h"
 #include <stdint.h>
 
 constexpr int ADDR_TYPE_INTERNAL_ROM = 0;
@@ -22,6 +23,12 @@ void check(const char *tag,
     }
 }
 
+double time_stamp;
+
+double sc_time_stamp() {
+    return time_stamp;
+}
+
 #define CHECK(a,b,c) check(a,b,c, __FILE__, __LINE__)
 
 int
@@ -39,7 +46,13 @@ main(int argc, char **argv)
     top->A = 0x0;
     top->D = 9;
 
+    Verilated::traceEverOn(true);
+
+    VerilatedVcdC* tfp = new VerilatedVcdC;
+    top->trace(tfp, 99);
     top->eval();
+
+    tfp->open("output.vcd");
 
     CHECK("iowr_addr_type", top->addr_type, ADDR_TYPE_AXI);
 
@@ -50,19 +63,27 @@ main(int argc, char **argv)
 
     top->A = 0x8001;
     top->D = 9;
+
     top->eval();
+    time_stamp += 5;
+    tfp->dump(time_stamp);
 
     CHECK("memrd_addr_type", top->addr_type, ADDR_TYPE_AXI);
-
 
     top->A = 0x1000;
     top->D = 9;
     top->eval();
+    time_stamp += 5;
+    tfp->dump(time_stamp);
+
     CHECK("memrd_addr_type", top->addr_type, ADDR_TYPE_INTERNAL_RAM);
 
     top->A = 0x900;
     top->D = 9;
     top->eval();
+    time_stamp += 5;
+    tfp->dump(time_stamp);
+
     CHECK("memrd_addr_type", top->addr_type, ADDR_TYPE_INTERNAL_ROM);
 
     top->IO = 0;
@@ -76,7 +97,11 @@ main(int argc, char **argv)
     CHECK("memrd_addr_type", top->addr_type, ADDR_TYPE_AXI);
     CHECK("axi_mem_write_wstrb", top->wstrb, 1<<3);
 
+    time_stamp += 5;
+    tfp->dump(time_stamp);
+
     top->final();
+    tfp->close();
 
     puts("OK");
 

@@ -7,7 +7,7 @@ LINK.o=z80-ld $(Z80_LDFLAGS) --oformat binary
 z80_firmware.o: z80_firmware.s
 z80_firmware: z80_firmware.o
 	z80-objdump -d z80_firmware.o
-	z80-objcopy -R .bss -O binary $< $@
+	z80-ld -Ttext=0 $< -o $@
 
 z80_firmware_hex.dat: z80_firmware genhex
 	./genhex < $< > $@

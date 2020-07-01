@@ -30,10 +30,13 @@ module addr_converter
                 // io read
                 is_read = 1;
                 wstrb = 0;
-
-                A32 = AXI_ADDR32_UART_RX;
                 D32 = 0;
                 addr_type = ADDR_TYPE_AXI;
+
+                case (A[7:0])
+                  8'd0: A32 = AXI_ADDR32_UART_RX;
+                  8'd2: A32 = AXI_ADDR32_UART_STAT;
+                endcase
             end
 
           4'b0110:
@@ -69,11 +72,18 @@ module addr_converter
               is_read = 0;
 
               case (A[7:0])
-                8'd0: begin
+                8'd1: begin
                     wstrb = 1;
                     A32 = AXI_ADDR32_UART_TX;
                     D32 = {24'd0, D[7:0]};
                     addr_type = ADDR_TYPE_AXI;
+                end
+
+                8'd128: begin
+                    wstrb = 0;
+                    A32 = 0;
+                    D32 = 32'd0;
+                    addr_type = ADDR_TYPE_INTERNAL_LED;
                 end
 
                 default: begin

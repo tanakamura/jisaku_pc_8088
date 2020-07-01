@@ -52,7 +52,8 @@ module z80_uart_top(
     z80_cpu z80(.*,
                 .RESETN(generated_resetn),
                 .Z80_CLK(clk_5mhz),
-                .LED(led)
+                .LED(led),
+                .AXI_CLK(CLK100MHZ)
                 );
 
     simple_uart_wrapper axi_uart(.*,
@@ -61,7 +62,6 @@ module z80_uart_top(
                                  .usb_uart_rxd(usb_uart_rxd),
                                  .usb_uart_txd(usb_uart_txd),
 
-                                 .Z80_CLK(clk_5mhz),
                                  .GENERATED_RESETN(generated_resetn)
                                  );
 
