@@ -1,0 +1,6 @@
+.Xil
+address_map.csv
+firmware/a.out
+firmware/bin
+firmware/genhex
+*.o
