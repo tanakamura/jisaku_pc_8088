@@ -1,0 +1,28 @@
+	org	0x4000
+START:
+	LD	A, 0x5
+
+	OUT	(128), A
+	LD	IX, DATA
+
+LOOP:
+	IN	A, (2)
+	BIT	3, A
+	JP	NZ, LOOP
+
+	LD	A, (IX+0)
+	CP	0
+	JP	Z,END
+	INC	IX
+	OUT	(1), A
+	JP	LOOP
+
+END:
+	LD	A, 0xF
+	OUT	(128), A
+
+	HALT
+	JP	END
+
+DATA:
+	defb	"ABCDEFGHIJKLMNOPQRSTUVWXYZ",0x0d,0x0a,0x00,0xff

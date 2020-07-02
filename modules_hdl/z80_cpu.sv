@@ -39,22 +39,20 @@ module z80_cpu
     parameter ROM_BIT_WIDTH = 12;
     parameter ROM_SIZE = 1<<ROM_BIT_WIDTH;
 
-    wire [15:0] A;
+    wire [15:0] A_cpu;
     wire nBUSRQ;
 
-    wire is_read;
-    wire [31:0] A32;
-    reg [31:0] r_A32;
-    wire [31:0] D32;
-    wire [3:0] wstrb;
-    wire [2:0] addr_type;
-    reg [2:0] r_addr_type;
+    wire is_read_busclk;
+    wire [31:0] A32_busclk;
+    wire [31:0] D32_busclk;
+    wire [3:0] wstrb_busclk;
+    wire [2:0] addr_type_busclk;
 
     wire nM1;
-    wire nMREQ;
-    wire nIORQ;
-    wire nWR;
-    wire nRD;
+    wire nMREQ_cpu;
+    wire nIORQ_cpu;
+    wire nWR_cpu;
+    wire nRD_cpu;
     wire nRFSH;
     wire nHALT;
     wire nBUSACK;
@@ -68,18 +66,18 @@ module z80_cpu
 
     tv80s z80(.reset_n(RESETN),
               .clk(Z80_CLK),
-              .A(A),
+              .A(A_cpu),
               .wait_n(nWAIT),
               .int_n(1),
               .nmi_n(1),
               .busrq_n(1),
-              .iorq_n(nIORQ),
-              .rd_n(nRD),
-              .wr_n(nWR),
+              .iorq_n(nIORQ_cpu),
+              .rd_n(nRD_cpu),
+              .wr_n(nWR_cpu),
               .halt_n(nHALT),
               .di(D_to_cpu),
               .do_(D_from_cpu),
-              .mreq_n(nMREQ),
+              .mreq_n(nMREQ_cpu),
               .m1_n(nM1),
               .rfsh_n(nRFSH),
               .busak_n(nBUSACK)
@@ -87,31 +85,70 @@ module z80_cpu
 
     assign nBUSRQ = 1;
 
-    wire [11:0] rom_addr;
     wire [7:0] rom_data;
     wire axi_busy;
     wire [7:0] axi_read_data;
 
-    axi_capture axi_cap(.A(r_A32),
-                        .D(D32),
+    reg nRD_prev;
+    reg nMREQ_prev;
+    reg nWR_prev;
+    reg nIORQ_prev;
+    reg [15:0] A_prev;
+    reg [7:0] D_from_cpu_prev;
+
+    reg nRD_busclk;
+    reg nMREQ_busclk;
+    reg nWR_busclk;
+    reg nIORQ_busclk;
+    reg wstrb_busclk;
+    reg [15:0] A_busclk;
+    reg [7:0] D_from_cpu_busclk;
+
+    wire [7:0] D_from_cpu_valid = (! nWR_cpu)?D_from_cpu:0;
+    wire from_cpu_match = (nRD_prev == nRD_cpu &&
+                           nWR_prev == nWR_cpu &&
+                           nMREQ_prev == nMREQ_cpu &&
+                           nIORQ_prev == nIORQ_cpu &&
+                           A_prev == A_cpu &&
+                           D_from_cpu_prev == D_from_cpu_valid);
+
+    always @(posedge AXI_CLK) begin
+        if (from_cpu_match)
+        begin
+            nRD_busclk <= nRD_cpu;
+            nWR_busclk <= nWR_cpu;
+            nMREQ_busclk <= nMREQ_cpu;
+            nIORQ_busclk <= nIORQ_cpu;
+            A_busclk <= A_cpu;
+            D_from_cpu_busclk <= D_from_cpu_valid;
+        end
+
+        nRD_prev <= nRD_cpu;
+        nWR_prev <= nWR_cpu;
+        nMREQ_prev <= nMREQ_cpu;
+        nIORQ_prev <= nIORQ_cpu;
+        A_prev <= A_cpu;
+        D_from_cpu_prev <= D_from_cpu_valid;
+    end
+
+    axi_capture axi_cap(.A(A32_busclk),
+                        .D(D32_busclk),
                         .axi_busy(axi_busy),
                         .read_data(axi_read_data),
-                        .rdaddr_fetch(rdaddr_fetch & (addr_type == ADDR_TYPE_AXI)),
-                        .wraddr_fetch(wraddr_fetch & (addr_type == ADDR_TYPE_AXI)),
-                        .wrdata_fetch(wrdata_fetch & (addr_type == ADDR_TYPE_AXI)),
-                        .BUS_CLK(Z80_CLK),
+                        .rdaddr_fetch(rdaddr_fetch & (addr_type_busclk == ADDR_TYPE_AXI)),
+                        .wraddr_fetch(wraddr_fetch & (addr_type_busclk == ADDR_TYPE_AXI)),
+                        .wrdata_fetch(wrdata_fetch & (addr_type_busclk == ADDR_TYPE_AXI)),
                         .AXI_CLK(AXI_CLK),
                         .RESETN(RESETN),
+                        .wstrb(wstrb_busclk),
                         .*
 
                         );
 
-    z80_rom rom(.ADDR(A32[11:0]),
+    z80_rom rom(.ADDR(A_busclk[11:0]),
                 .DATA(rom_data));
 
     reg [7:0] ram [0:4096-1];
-
-    assign rom_addr = A[11:0];
 
     reg [3:0] LED_reg;
 
@@ -125,38 +162,38 @@ module z80_cpu
 
     addr_converter#(.ADDR_WIDTH(16))
     addr_conv
-      (.IO(! nIORQ),
-       .MEM(! nMREQ),
-       .RD(! nRD),
-       .WR(! nWR),
+      (.IO(! nIORQ_busclk),
+       .MEM(! nMREQ_busclk),
+       .RD(! nRD_busclk),
+       .WR(! nWR_busclk),
         
-       .A(A),
-       .D(D_from_cpu),
+       .A(A_busclk),
+       .D(D_from_cpu_busclk),
 
-       .is_read(is_read),
-       .A32(A32),
-       .D32(D32),
-       .wstrb(wstrb),
+       .is_read(is_read_busclk),
+       .A32(A32_busclk),
+       .D32(D32_busclk),
+       .wstrb(wstrb_busclk),
 
-       .addr_type(addr_type)
+       .addr_type(addr_type_busclk)
        );
 
     wire nWAIT = (! axi_busy);
 
     var [7:0] D_to_cpu_from_internal;
-    wire [7:0] D_to_cpu = (addr_type == ADDR_TYPE_AXI) ? axi_read_data : D_to_cpu_from_internal;
+    wire [7:0] D_to_cpu = (addr_type_busclk == ADDR_TYPE_AXI) ? axi_read_data : D_to_cpu_from_internal;
 
     always_comb begin
-        if (addr_type == ADDR_TYPE_INTERNAL_ROM) begin
+        if (addr_type_busclk == ADDR_TYPE_INTERNAL_ROM) begin
             D_to_cpu_from_internal = rom_data;
-        end else if (addr_type == ADDR_TYPE_INTERNAL_RAM) begin
-            D_to_cpu_from_internal = ram[A32[11:0]];
+        end else if (addr_type_busclk == ADDR_TYPE_INTERNAL_RAM) begin
+            D_to_cpu_from_internal = ram[A32_busclk[11:0]];
         end else begin
             D_to_cpu_from_internal = 0;
         end
     end
 
-    always @(posedge Z80_CLK) begin
+    always @(posedge AXI_CLK) begin
         if (!RESETN) begin
             LED_reg <= 0;
             wrdata_fetch <= 0;
@@ -168,19 +205,15 @@ module z80_cpu
             if (rdaddr_fetch) begin
                 rdaddr_fetch <= 0;
             end else begin
-                if (nrd_prev == 1 && nRD == 0) begin
+                if (nrd_prev == 1 && nRD_busclk == 0) begin
                     rdaddr_fetch <= 1;
-                    r_addr_type <= addr_type;
-                    r_A32 <= A32;
                 end
             end
 
             if (wraddr_fetch) begin
                 wraddr_fetch <= 0;
             end else begin
-                if (nwr_prev == 1 && nWR == 0) begin
-                    r_A32 <= A32;
-                    r_addr_type <= addr_type;
+                if (nwr_prev == 1 && nWR_busclk == 0) begin
                     wraddr_fetch <= 1;
                 end
             end
@@ -188,21 +221,21 @@ module z80_cpu
             if (wrdata_fetch) begin
                 wrdata_fetch <= 0;
             end else begin
-                if (nwr_prev == 1 && nWR == 0) begin
+                if (nwr_prev == 1 && nWR_busclk == 0) begin
                     wrdata_fetch <= 1;
 
-                    if (addr_type == ADDR_TYPE_INTERNAL_ROM) begin
-                        ram[A32[11:0]] <= D_from_cpu;
+                    if (addr_type_busclk == ADDR_TYPE_INTERNAL_RAM) begin
+                        ram[A32_busclk[11:0]] <= D_from_cpu_busclk;
                     end
 
-                    if (addr_type == ADDR_TYPE_INTERNAL_LED) begin
-                        LED_reg <= D_from_cpu[3:0];
+                    if (addr_type_busclk == ADDR_TYPE_INTERNAL_LED) begin
+                        LED_reg <= D_from_cpu_busclk[3:0];
                     end
                 end
             end
 
-            nrd_prev <= nRD;
-            nwr_prev <= nWR;
+            nrd_prev <= nRD_busclk;
+            nwr_prev <= nWR_busclk;
 
         end
     end

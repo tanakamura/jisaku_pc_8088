@@ -1,17 +1,18 @@
 `default_nettype none
 module z80_uart_top(
-                    CLK100MHZ,
-                    usb_uart_rxd,
-                    usb_uart_txd,
-                    ck_rst,
-                    led
-                    );
+                    input wire CLK100MHZ,
+                    input wire usb_uart_rxd,
+                    output wire usb_uart_txd,
+                    input wire ck_rst,
+                    output wire [3:0] led,
+                    inout wire qspi_flash_io0_io,
+                    inout wire qspi_flash_io1_io,
+                    inout wire qspi_flash_io2_io,
+                    inout wire qspi_flash_io3_io,
+                    inout wire qspi_flash_sck_io,
+                    inout wire qspi_flash_ss_io
 
-    input wire CLK100MHZ;
-    input wire usb_uart_rxd;
-    input wire ck_rst;
-    output wire usb_uart_txd;
-    output [3:0] led;
+                    );
 
     wire [31:0] AXI_araddr;
     wire [2:0] AXI_arprot;
@@ -34,14 +35,23 @@ module z80_uart_top(
     wire AXI_wvalid;
 
     reg [3:0] div_cnt;
-    wire clk_5mhz_log;
+    wire clk_5mhz_logic;
     wire clk_5mhz;
-    assign clk_5mhz_log = div_cnt[3];
+    assign clk_5mhz_logic = div_cnt[3];
+
+    wire clk_25mhz_logic;
+    assign clk_25mhz_logic = div_cnt[1];
+    wire clk_25mhz;
 
     BUFR clk_div(.CE(1),
                  .CLR(0),
-                 .I(clk_5mhz_log),
+                 .I(clk_5mhz_logic),
                  .O(clk_5mhz));
+
+    BUFR clk_div_25(.CE(1),
+                    .CLR(0),
+                    .I(clk_25mhz_logic),
+                    .O(clk_25mhz));
 
     always @(posedge CLK100MHZ) begin
         div_cnt <= div_cnt + 1;
@@ -61,6 +71,7 @@ module z80_uart_top(
                                  .aresetn(ck_rst),
                                  .usb_uart_rxd(usb_uart_rxd),
                                  .usb_uart_txd(usb_uart_txd),
+                                 .spi_clk(clk_25mhz),
 
                                  .GENERATED_RESETN(generated_resetn)
                                  );
