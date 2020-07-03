@@ -1,3 +1,7 @@
 z80_main
 z80_firmware
 8088_main
+8088_por
+*.lst
+*.dat
+*.map
