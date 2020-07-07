@@ -9,6 +9,8 @@ verilate(addr_conv
   )
 
 add_executable(z80_cpu z80_cpu_main.cpp)
+add_executable(i8088_cpu i8088_cpu_main.cpp)
+add_executable(i8088_top i8088_top_main.cpp)
 
 set(Z80_SRCS
   tv80/tv80_core.v)
@@ -19,13 +21,22 @@ verilate(z80_cpu
   INCLUDE_DIRS tv80
   )
 
+verilate(i8088_cpu
+  SOURCES i8088_cpu.sv ../firmware/i8088_rom.v ../firmware/rom.v
+  VERILATOR_ARGS  --timescale-override 1ns/1ps --trace --top-module i8088_cpu
+)
+
+verilate(i8088_top
+  SOURCES ../top_hdl/i8088_top.sv i8088_cpu.sv ../firmware/i8088_rom.v ../firmware/rom.v
+  VERILATOR_ARGS  --timescale-override 1ns/1ps --trace --top-module jisaku_pc_top -DGENERATE_VERILATOR=1
+)
 
 add_executable(genhex ../firmware/genhex.c)
 
 set(FW_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR})
 
 add_custom_target(firmware ALL
-  DEPENDS ${FW_BUILD_DIR}/z80_firmware_hex.dat)
+  DEPENDS ${FW_BUILD_DIR}/z80_firmware_hex.dat ${FW_BUILD_DIR}/8088_firmware_hex.dat)
 
 add_custom_command(OUTPUT ${FW_BUILD_DIR}/z80_firmware.o
   DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/../firmware/z80_firmware.s
@@ -40,3 +51,13 @@ add_custom_command(OUTPUT ${FW_BUILD_DIR}/z80_firmware
 add_custom_command(OUTPUT ${FW_BUILD_DIR}/z80_firmware_hex.dat
   DEPENDS ${FW_BUILD_DIR}/z80_firmware
   COMMAND ${FW_BUILD_DIR}/genhex < ${FW_BUILD_DIR}/z80_firmware > ${FW_BUILD_DIR}/z80_firmware_hex.dat)
+
+
+
+add_custom_command(OUTPUT ${FW_BUILD_DIR}/8088_firmware
+  DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/../firmware/8088_firmware.s
+  COMMAND nasm ${CMAKE_CURRENT_SOURCE_DIR}/../firmware/8088_firmware.s -o ${FW_BUILD_DIR}/8088_firmware)
+
+add_custom_command(OUTPUT ${FW_BUILD_DIR}/8088_firmware_hex.dat
+  DEPENDS ${FW_BUILD_DIR}/8088_firmware
+  COMMAND ${FW_BUILD_DIR}/genhex 16 < ${FW_BUILD_DIR}/8088_firmware > ${FW_BUILD_DIR}/8088_firmware_hex.dat)

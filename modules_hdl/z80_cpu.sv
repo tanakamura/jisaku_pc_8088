@@ -183,11 +183,17 @@ module z80_cpu
     var [7:0] D_to_cpu_from_internal;
     wire [7:0] D_to_cpu = (addr_type_busclk == ADDR_TYPE_AXI) ? axi_read_data : D_to_cpu_from_internal;
 
+    reg [7:0] ram_data;
+
+    always @(posedge AXI_CLK) begin
+        ram_data = ram[A32_busclk[15:0]];
+    end
+
     always_comb begin
         if (addr_type_busclk == ADDR_TYPE_INTERNAL_ROM) begin
             D_to_cpu_from_internal = rom_data;
         end else if (addr_type_busclk == ADDR_TYPE_INTERNAL_RAM) begin
-            D_to_cpu_from_internal = ram[A32_busclk[11:0]];
+            D_to_cpu_from_internal = ram_data;
         end else begin
             D_to_cpu_from_internal = 0;
         end

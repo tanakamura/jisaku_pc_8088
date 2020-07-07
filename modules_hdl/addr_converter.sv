@@ -2,7 +2,8 @@
 
 
 module mem_addr_converter
-  #(parameter integer ADDR_WIDTH = 20)
+  #(parameter integer ADDR_WIDTH = 20,
+    parameter integer IS_Z80 = 1)
     (
      input wire [ADDR_WIDTH-1:0] A,
      output var [2:0] addr_type,
@@ -10,36 +11,59 @@ module mem_addr_converter
 
 `include "addr_map.svh"
 
-    always_comb begin
-        if (A[ADDR_WIDTH-1] == 1) begin
-            // 0b1xxxx_xxxx dram
-            A32 = { {(32-ADDR_WIDTH){1'b0}}, A[ADDR_WIDTH-2:0]} | AXI_ADDR32_DRAM_BASE;
-            addr_type = ADDR_TYPE_AXI;
-        end else if (A[ADDR_WIDTH-2] == 1) begin
-            // 0b01xx_xxxx flash
-            A32 = { {(32-(ADDR_WIDTH-1)){1'b0}}, A[ADDR_WIDTH-3:0]} | (AXI_ADDR32_FLASH_XIP_BASE+32'h0080_0000);
-            addr_type = ADDR_TYPE_AXI;
-        end else begin
-            case (A[15:12])
-              default:
-                begin
-                    A32 = {20'd0, A[11:0]};
-                    addr_type = ADDR_TYPE_INTERNAL_ROM;
-                end
+    generate 
+        if (IS_Z80 == 1) begin
+            always_comb begin
+                if (A[ADDR_WIDTH-1] == 1) begin
+                    // 0b1xxxx_xxxx dram
+                    A32 = { {(32-(ADDR_WIDTH-1)){1'b0}}, A[ADDR_WIDTH-2:0]} | AXI_ADDR32_DRAM_BASE;
+                    addr_type = ADDR_TYPE_AXI;
+                end else if (A[ADDR_WIDTH-2] == 1) begin
+                    // 0b01xx_xxxx flash
+                    A32 = { {(32-(ADDR_WIDTH-2)){1'b0}}, A[ADDR_WIDTH-3:0]} | (AXI_ADDR32_FLASH_XIP_BASE+32'h0080_0000);
+                    addr_type = ADDR_TYPE_AXI;
+                end else begin
+                    case (A[15:12])
+                      default:
+                        begin
+                            A32 = {20'd0, A[11:0]};
+                            addr_type = ADDR_TYPE_INTERNAL_ROM;
+                        end
 
-              0'b0001:
-                begin
-                    A32 = {20'd0, A[11:0]};
-                    addr_type = ADDR_TYPE_INTERNAL_RAM;
+                      0'b0001:
+                        begin
+                            A32 = {20'd0, A[11:0]};
+                            addr_type = ADDR_TYPE_INTERNAL_RAM;
+                        end
+                    endcase
                 end
-            endcase
+            end
+        end else begin
+            always_comb begin
+                if (A[19:4] == 16'hffff) begin
+                    addr_type = ADDR_TYPE_INTERNAL_ROM;
+                    A32 = {28'd0, A[3:0]};
+                end else begin
+                    if (A[16] == 1) begin
+                        // 0b1_xxxx_xxxx_xxxx_xxxx spi flash
+                        A32 = {16'd0, A[15:0]} | (AXI_ADDR32_FLASH_XIP_BASE+32'h0080_0000);
+                        addr_type = ADDR_TYPE_AXI;
+                    end else begin
+                        // 0b0_xxxx_xxxx_xxxx_xxxx internal ram
+                        A32 = {16'd0, A[15:0]};
+                        addr_type = ADDR_TYPE_INTERNAL_RAM;
+                    end
+                end
+            end
         end
-    end
+    endgenerate
+
 endmodule
 
 
 module addr_converter
-  #(parameter integer ADDR_WIDTH = 20)
+  #(parameter integer ADDR_WIDTH = 20,
+    parameter integer IS_Z80 = 1)
     (
      input wire IO,
      input wire MEM,
@@ -63,7 +87,7 @@ module addr_converter
     wire [31:0] mem_A32;
     wire [2:0] mem_addr_type;
 
-    mem_addr_converter#(.ADDR_WIDTH(ADDR_WIDTH))
+    mem_addr_converter#(.ADDR_WIDTH(ADDR_WIDTH), .IS_Z80(IS_Z80))
     ma(.A(A),
        .A32(mem_A32),
        .addr_type(mem_addr_type));
