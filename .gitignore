@@ -4,3 +4,7 @@ firmware/a.out
 firmware/bin
 firmware/genhex
 *.o
+vivado.jou
+vivado.log
+vivado*.str
+hs_err_*.log
