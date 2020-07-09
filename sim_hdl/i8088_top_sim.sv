@@ -12,6 +12,22 @@ module top_sim(
     always #5
         clk = !clk;
 
+    wire [13:0] ddr3_addr;
+    wire [2:0] ddr3_ba;
+    wire ddr3_cas_n;
+    wire ddr3_ck_n;
+    wire ddr3_ck_p;
+    wire ddr3_cke;
+    wire ddr3_cs_n;
+    wire ddr3_dm;
+    wire [15:0] ddr3_dq;
+    wire [1:0] ddr3_dqs_n;
+    wire [1:0] ddr3_dqs_p;
+    wire ddr3_odt;
+    wire ddr3_ras_n;
+    wire ddr3_reset_n;
+    wire ddr3_we_n;
+
 
     wire ck_scl;  // DIR
     wire ck_sda;  // A15
@@ -70,18 +86,18 @@ module top_sim(
     wire usb_uart_txd;
 
 
-    wire [9:0] A16_8;
+    wire [10:0] A17_8;
     wire [7:0] AD7_0_in;
 
     reg [19:0] A20;
     reg [7:0] D8;
 
-    assign A16_8 = A20[17:8];
+    assign A17_8 = A20[18:8];
     assign AD7_0_in = ALE ? A20[7:0] : D8[7:0];
 
-    assign { ck_io33,
+    assign { ck_io32, ck_io33,
              ck_sda, ck_ioa, ck_io13, ck_io12,
-             ck_io11, ck_io10, ck_io9, ck_io8 } = A16_8;
+             ck_io11, ck_io10, ck_io9, ck_io8 } = A17_8;
 
     assign ALE = 1;
     assign DT_nR = 0;
@@ -117,7 +133,7 @@ module top_sim(
         resetn = 0;
         repeat (128) @(posedge clk);
         resetn = 1;
-        repeat (128) @(posedge clk);
+        repeat (256) @(posedge clk);
 
         nRD <= 1;
         DT_nR <= 0;
@@ -204,6 +220,19 @@ module top_sim(
         nRD <= 0;
         repeat (128) @(posedge clk);
         $display("read 8 = %x\n", D_from_bus);
+
+
+        IO_nM <= 0;
+        nRD <= 1;
+        nWR <= 1;
+        ALE <= 1;
+        A20 <= 20'h21008;
+        repeat (128) @(posedge clk);
+
+        ALE <= 0;
+        nRD <= 0;
+        repeat (128) @(posedge clk);
+        $display("read DDR = %x\n", D_from_bus);
 
         $stop;
     end

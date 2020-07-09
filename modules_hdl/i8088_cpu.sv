@@ -2,7 +2,7 @@
 `default_nettype none
 
 module i8088_cpu
-    (output wire [31:0] AXI_araddr,
+    (output wire [32:0] AXI_araddr,
      output wire [2:0] AXI_arprot,
      input wire AXI_arready,
      output wire AXI_arvalid,
@@ -12,7 +12,7 @@ module i8088_cpu
      input wire [1:0]  AXI_rresp,
      input wire AXI_rvalid,
 
-     output wire [31:0] AXI_awaddr,
+     output wire [32:0] AXI_awaddr,
      output wire [2:0] AXI_awprot,
      input wire AXI_awready,
      output wire AXI_awvalid,
@@ -33,7 +33,7 @@ module i8088_cpu
 
      input wire RESETN,
 
-     input wire [19:8] A_19_8_cpu,
+     input wire [19:0] A_cpu,
      input wire [7:0] AD8_in_cpu,
      output wire [7:0] AD8_out_cpu,
      output wire AD8_enout_cpu,
@@ -70,16 +70,6 @@ module i8088_cpu
     wire axi_busy;
     wire [7:0] axi_read_data;
 
-    reg [19:0] r_A_cpu;
-
-    always @(posedge I8088_CLK) begin
-        if (ALE_cpu) begin
-            r_A_cpu <= {A_19_8_cpu, AD8_in_cpu};
-        end
-    end
-
-    wire [19:0] A_cpu = ALE_cpu ? {A_19_8_cpu, AD8_in_cpu} : r_A_cpu;
-
     // DT nR
     // high คว 8088 to Artix
     // lo คว Artix to 8088
@@ -99,7 +89,7 @@ module i8088_cpu
     //    L     H     => 8088 to Artix (H)
     //    H     L     => 8088 to Aritx (H)
     //    H     H     => 8088 to Artix (H)
-    assign dbus_DIR = ALE_cpu | nRD;
+    assign dbus_DIR = ALE_cpu | nRD_cpu;
 
     reg nRD_prev;
     reg nMREQ_prev;
@@ -113,7 +103,8 @@ module i8088_cpu
     reg nWR_busclk;
     reg nIORQ_busclk;
     reg [19:0] A_busclk;
-    reg [7:0] D_from_cpu_busclk;
+    reg [7:0] r_D_from_cpu_busclk;
+    wire [7:0] D_from_cpu_busclk;
 
     wire [7:0] D_from_cpu_valid = (! nWR_cpu)?D_from_cpu:0;
     wire from_cpu_match = (nRD_prev == nRD_cpu &&
@@ -131,7 +122,7 @@ module i8088_cpu
             nMREQ_busclk <= nMREQ_cpu;
             nIORQ_busclk <= nIORQ_cpu;
             A_busclk <= A_cpu;
-            D_from_cpu_busclk <= D_from_cpu_valid;
+            r_D_from_cpu_busclk <= D_from_cpu_valid;
         end
 
         nRD_prev <= nRD_cpu;
@@ -142,19 +133,23 @@ module i8088_cpu
         D_from_cpu_prev <= D_from_cpu_valid;
     end
 
-    axi_capture axi_cap(.A(A32_busclk),
-                        .D(D32_busclk),
-                        .axi_busy(axi_busy),
-                        .read_data(axi_read_data),
-                        .rdaddr_fetch(rdaddr_fetch & (addr_type_busclk == ADDR_TYPE_AXI)),
-                        .wraddr_fetch(wraddr_fetch & (addr_type_busclk == ADDR_TYPE_AXI)),
-                        .wrdata_fetch(wrdata_fetch & (addr_type_busclk == ADDR_TYPE_AXI)),
-                        .AXI_CLK(AXI_CLK),
-                        .RESETN(RESETN),
-                        .wstrb(wstrb_busclk),
-                        .*
+    assign D_from_cpu_busclk = from_cpu_match ? D_from_cpu : r_D_from_cpu_busclk;
+    //assign D_from_cpu_busclk = r_D_from_cpu_busclk;
 
-                        );
+    axi_capture#(.ADDR_WIDTH(33))
+    axi_cap(.A(A32_busclk),
+            .D(D32_busclk),
+            .axi_busy(axi_busy),
+            .read_data(axi_read_data),
+            .rdaddr_fetch(rdaddr_fetch & (addr_type_busclk == ADDR_TYPE_AXI)),
+            .wraddr_fetch(wraddr_fetch & (addr_type_busclk == ADDR_TYPE_AXI)),
+            .wrdata_fetch(wrdata_fetch & (addr_type_busclk == ADDR_TYPE_AXI)),
+            .AXI_CLK(AXI_CLK),
+            .RESETN(RESETN),
+            .wstrb(wstrb_busclk),
+            .*
+
+            );
 
     i8088_rom rom(.ADDR(A32_busclk[3:0]),
                   .DATA(rom_data));

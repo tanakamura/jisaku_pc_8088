@@ -100,7 +100,6 @@ module z80_cpu
     reg nMREQ_busclk;
     reg nWR_busclk;
     reg nIORQ_busclk;
-    reg wstrb_busclk;
     reg [15:0] A_busclk;
     reg [7:0] D_from_cpu_busclk;
 

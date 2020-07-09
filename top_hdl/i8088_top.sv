@@ -55,6 +55,23 @@ module jisaku_pc_top(
                      inout wire qspi_flash_sck_io,
                      inout wire qspi_flash_ss_io,
 
+                     output wire [13:0] ddr3_addr,
+                     output wire [2:0] ddr3_ba,
+                     output wire ddr3_cas_n,
+                     output wire ddr3_ck_n,
+                     output wire ddr3_ck_p,
+                     output wire ddr3_cke,
+                     output wire ddr3_cs_n,
+                     output wire [1:0] ddr3_dm,
+                     inout wire [15:0] ddr3_dq,
+                     inout wire [1:0] ddr3_dqs_n,
+                     inout wire [1:0] ddr3_dqs_p,
+                     output wire ddr3_odt,
+                     output wire ddr3_ras_n,
+                     output wire ddr3_reset_n,
+                     output wire ddr3_we_n,
+
+
                      //inout wire spi_io0_io,
                      //inout wire spi_io1_io,
                      //inout wire spi_sck_io,
@@ -104,16 +121,17 @@ module jisaku_pc_top(
     assign ck_io7 = READY;
     wire CPU_CLK;
     assign ck_io6 = CPU_CLK;
-    wire RESET;
-    assign ck_io5 = RESET;
+    wire CPU_RESET;
+    wire CPU_RESET_32;
+    assign ck_io5 = CPU_RESET_32;
     wire bus_DIR;
     assign ck_scl = bus_DIR;
 
-    wire [31:0] AXI_araddr;
+    wire [32:0] AXI_araddr;
     wire [2:0] AXI_arprot;
     wire AXI_arready;
     wire AXI_arvalid;
-    wire [31:0] AXI_awaddr;
+    wire [32:0] AXI_awaddr;
     wire [2:0] AXI_awprot;
     wire AXI_awready;
     wire AXI_awvalid;
@@ -129,8 +147,9 @@ module jisaku_pc_top(
     wire [3:0] AXI_wstrb;
     wire AXI_wvalid;
 
-    reg [1:0] div_cnt_25mhz;
-    reg [4:0] div18_counter;
+    reg [1:0] div_cnt_25mhz;    // 41.666
+    reg [4:0] div15_counter;
+    reg [4:0] reset_counter;
 
     wire clk_25mhz_logic;
     assign clk_25mhz_logic = div_cnt_25mhz[1];
@@ -146,24 +165,15 @@ module jisaku_pc_top(
 `endif
     initial begin
         div_cnt_25mhz = 0;
-        div18_counter = 0;
     end
 
-    always @(posedge CLK100MHZ) begin
+    wire clk_83mhz;
+
+    always @(posedge clk_83mhz) begin
         div_cnt_25mhz <= div_cnt_25mhz + 1;
     end
 
-
-    always @(posedge CLK100MHZ) begin
-        if (div18_counter < 5'd17) begin
-            div18_counter <= div18_counter + 1;
-        end else begin
-            div18_counter <= 0;
-        end
-    end
-
-    assign CPU_CLK = div18_counter < 5'd6;
-    wire generated_resetn;
+    wire PERIPHERAL_RESETN;
 
 `ifdef GENERATE_VERILATOR
 
@@ -171,31 +181,87 @@ module jisaku_pc_top(
     simple_uart_wrapper axi_uart(.*,
                                  .aclk(CLK100MHZ),
                                  .aresetn(ck_rst),
-                                 .usb_uart_rxd(usb_uart_rxd),
-                                 .usb_uart_txd(usb_uart_txd),
                                  .spi_clk(clk_25mhz),
 
-                                 .GENERATED_RESETN(generated_resetn)
+                                 .CPU_RESET(CPU_RESET),
+                                 .PERIPHERAL_RESETN(PERIPHERAL_RESETN),
+                                 .GENERATED_BUSCLK83(clk_83mhz),
+
+                                 .ddr3_sdram_addr(ddr3_addr),
+                                 .ddr3_sdram_ba(ddr3_ba),
+                                 .ddr3_sdram_cas_n(ddr3_cas_n),
+                                 .ddr3_sdram_ck_n(ddr3_ck_n),
+                                 .ddr3_sdram_ck_p(ddr3_ck_p),
+                                 .ddr3_sdram_cke(ddr3_cke),
+                                 .ddr3_sdram_cs_n(ddr3_cs_n),
+                                 .ddr3_sdram_dm(ddr3_dm),
+                                 .ddr3_sdram_dq(ddr3_dq),
+                                 .ddr3_sdram_dqs_n(ddr3_dqs_n),
+                                 .ddr3_sdram_dqs_p(ddr3_dqs_p),
+                                 .ddr3_sdram_odt(ddr3_odt),
+                                 .ddr3_sdram_ras_n(ddr3_ras_n),
+                                 .ddr3_sdram_reset_n(ddr3_reset_n),
+                                 .ddr3_sdram_we_n(ddr3_we_n)
                                  );
 `endif
+    always @(posedge clk_83mhz) begin
+        if (CPU_RESET) begin
+            div15_counter <= 0;
+        end else begin 
+            if (div15_counter < 5'd14) begin
+                div15_counter <= div15_counter + 1;
+            end else begin
+                div15_counter <= 0;
+            end
+        end
+    end
+    assign CPU_CLK = div15_counter < 5'd5;
 
-    assign RESET = ! generated_resetn;
+    always @(posedge CPU_CLK) begin // hold 31cycle
+        if (CPU_RESET) begin
+            reset_counter <= 0;
+        end else begin
+            if (reset_counter != 5'b11111) begin
+                reset_counter <= reset_counter + 1;
+            end
+        end
+    end
+
+    assign CPU_RESET_32 = reset_counter != 5'b11111;
 
     wire INTR;
     wire NMI;
 
+    reg r_nRD_cpu;
+    reg r_nWR_cpu;
+    reg [7:0] r_AD8_cpu;
+    reg r_IO_nM_cpu;
+
+    reg [19:0] r_A_cpu;
+
+    always @(posedge CPU_CLK) begin
+        r_nRD_cpu <= nRD;
+        r_nWR_cpu <= nWR;
+        r_AD8_cpu <= AD7_0_in;
+        r_IO_nM_cpu <= IO_nM;
+
+        if (ALE) begin
+            r_A_cpu <= {A19_8, AD7_0_in};
+        end
+    end
+
     i8088_cpu cpu(.*,           // AXI
                   .I8088_CLK(CPU_CLK),
-                  .AXI_CLK(CLK100MHZ),
+                  .AXI_CLK(clk_83mhz),
                   .LED(led),
-                  .RESETN(generated_resetn),
-                  .A_19_8_cpu(A19_8),
-                  .AD8_in_cpu(AD7_0_in),
+                  .RESETN(PERIPHERAL_RESETN),
+                  .A_cpu(r_A_cpu),
+                  .AD8_in_cpu(r_AD8_cpu),
                   .AD8_out_cpu(AD7_0_out),
                   .AD8_enout_cpu(AD7_0_enout),
-                  .nRD_cpu(nRD),
-                  .nWR_cpu(nWR),
-                  .IO_nM_cpu(IO_nM),
+                  .nRD_cpu(r_nRD_cpu),
+                  .nWR_cpu(r_nWR_cpu),
+                  .IO_nM_cpu(r_IO_nM_cpu),
                   .ALE_cpu(ALE),
                   //.DT_nR_cpu(DT_nR),
                   //.nDEN_cpu(nDEN),

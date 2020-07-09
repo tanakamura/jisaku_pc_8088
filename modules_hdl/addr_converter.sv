@@ -43,6 +43,9 @@ module mem_addr_converter
                 if (A[19:4] == 16'hffff) begin
                     addr_type = ADDR_TYPE_INTERNAL_ROM;
                     A32 = {28'd0, A[3:0]};
+                end else if (A[17] == 1) begin
+                    A32 = {15'd0, A[16:0]} | AXI_ADDR32_DRAM_BASE;
+                    addr_type = ADDR_TYPE_AXI;
                 end else begin
                     if (A[16] == 1) begin
                         // 0b1_xxxx_xxxx_xxxx_xxxx spi flash
