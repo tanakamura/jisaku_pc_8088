@@ -114,7 +114,7 @@ if { $::argc > 0 } {
 set orig_proj_dir "[file normalize "$origin_dir/jisaku_pc"]"
 
 # Create project
-create_project ${_xil_proj_name_} ./${_xil_proj_name_} -part xc7a35ticsg324-1L
+create_project -force ${_xil_proj_name_} ./${_xil_proj_name_} -part xc7a35ticsg324-1L
 
 # Set the directory path for the new project
 set proj_dir [get_property directory [current_project]]
@@ -165,8 +165,8 @@ add_files -norecurse -fileset $obj $files
 # Import local files from the original project
 set files [list \
  [file normalize "${origin_dir}/jisaku_pc/archive_project_summary.txt" ]\
- [file normalize "${origin_dir}/jisaku_pc/jisaku_pc.srcs/sources_1/bd/simple_uart/hdl/simple_uart_wrapper.v" ]\
- [file normalize "${origin_dir}/jisaku_pc/jisaku_pc.srcs/sources_1/bd/simple_uart/ip/simple_uart_mig_7series_0_1/board.prj" ]\
+ [file normalize "${origin_dir}/bd_srcs/sources_1/bd/simple_uart/hdl/simple_uart_wrapper.v" ]\
+ [file normalize "${origin_dir}/bd_srcs/sources_1/bd/simple_uart/ip/simple_uart_mig_7series_0_1/board.prj" ]\
 ]
 set imported_files [import_files -fileset sources_1 $files]
 
@@ -222,7 +222,7 @@ if {[string equal [get_filesets -quiet constrs_1] ""]} {
 set obj [get_filesets constrs_1]
 
 # Add/Import constrs file and set constrs file properties
-set file "[file normalize ${origin_dir}/jisaku_pc/jisaku_pc.srcs/constrs_1/imports/8088/Arty-A7-35-Master.xdc]"
+set file "[file normalize ${origin_dir}/bd_srcs/constrs_1/imports/8088/Arty-A7-35-Master.xdc]"
 set file_imported [import_files -fileset constrs_1 [list $file]]
 set file "8088/Arty-A7-35-Master.xdc"
 set file_obj [get_files -of_objects [get_filesets constrs_1] [list "*$file"]]
