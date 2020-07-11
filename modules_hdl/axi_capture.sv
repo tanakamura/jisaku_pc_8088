@@ -70,8 +70,8 @@ module axi_capture#(
     assign AXI_wstrb = axi_wstrb;
     assign AXI_rready = axi_rready;
     assign AXI_awvalid = axi_awvalid;
-    assign AXI_awaddr = {axi_waddr[31:2], 2'b00};
-    assign AXI_araddr = {axi_raddr[31:2], 2'b00};
+    assign AXI_awaddr = {axi_waddr[ADDR_WIDTH-1:2], 2'b00};
+    assign AXI_araddr = {axi_raddr[ADDR_WIDTH-1:2], 2'b00};
     assign AXI_arvalid = axi_arvalid;
     assign read_data = read_data_buf;
 

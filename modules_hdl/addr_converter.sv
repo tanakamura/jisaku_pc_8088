@@ -114,6 +114,11 @@ module addr_converter
                       addr_type = ADDR_TYPE_AXI;
                       A32 = AXI_ADDR32_UART_STAT;
                   end
+                  8'd128: begin
+                      addr_type = ADDR_TYPE_INTERNAL_BUTTON;
+                      A32 = 0;
+                  end
+
                   default: begin
                       addr_type = ADDR_TYPE_UNKNOWN;
                       A32 = 0;
@@ -163,8 +168,15 @@ module addr_converter
           4'b0101:  begin
               // mem write
               is_read = 0;
-              wstrb = 0;
-              D32 = 0;
+              D32 = {4{D[7:0]}};
+
+              case (A32[1:0])
+                2'b00: wstrb = 4'b0001;
+                2'b01: wstrb = 4'b0010;
+                2'b10: wstrb = 4'b0100;
+                2'b11: wstrb = 4'b1000;
+              endcase
+
               addr_type = mem_addr_type;
               A32 = mem_A32;
           end

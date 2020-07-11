@@ -1,6 +1,7 @@
 `timescale 1ns / 1ps
 `default_nettype none
 
+`define den2048Mb
 
 module top_sim(
 
@@ -19,7 +20,7 @@ module top_sim(
     wire ddr3_ck_p;
     wire ddr3_cke;
     wire ddr3_cs_n;
-    wire ddr3_dm;
+    wire [1:0]ddr3_dm;
     wire [15:0] ddr3_dq;
     wire [1:0] ddr3_dqs_n;
     wire [1:0] ddr3_dqs_p;
@@ -74,7 +75,10 @@ module top_sim(
     wire ck_io6; // CLK
     wire ck_io5; // RESET
 
+    wire READY = ck_io7;
+
     wire [3:0] led;
+    wire [3:0] btn;
     wire qspi_flash_io0_io;
     wire qspi_flash_io1_io;
     wire qspi_flash_io2_io;
@@ -135,107 +139,153 @@ module top_sim(
         resetn = 1;
         repeat (256) @(posedge clk);
 
-        nRD <= 1;
-        DT_nR <= 0;
-        ALE <= 1;
+//        nRD <= 1;
+//        DT_nR <= 0;
+//        ALE <= 1;
+//        IO_nM <= 0;
+//
+//        repeat (128) @(posedge clk);
+//
+//        nRD <= 0;
+//        ALE <= 0;
+//
+//        repeat (128) @(posedge clk);
+//
+//        A20 <= 20'hffff1;
+//        nRD <= 1;
+//        ALE <= 1;
+//
+//        repeat (128) @(posedge clk);
+//
+//        ALE <= 0;
+//
+//        repeat (128) @(posedge clk);
+//
+//        IO_nM <= 1;
+//        A20 <= 20'h00080;
+//        D8 <= 3;
+//        DT_nR <= 1;
+//        nWR <= 1;
+//        nRD <= 1;
+//        ALE <= 1;
+//
+//        repeat (128) @(posedge clk);
+//
+//        nWR <= 0;
+//        ALE <= 0;
+//
+//        repeat (128) @(posedge clk);
+//
+//        IO_nM <= 0;
+//        nRD <= 1;
+//        nWR <= 1;
+//        ALE <= 1;
+//        A20 <= 20'h00008;
+//        repeat (128) @(posedge clk);
+//        ALE <= 0;
+//        nWR <= 0;
+//        D8 <= 8'ha5;
+//        repeat (128) @(posedge clk);
+//
+//
+//        IO_nM <= 0;
+//        nRD <= 1;
+//        nWR <= 1;
+//        ALE <= 1;
+//        A20 <= 20'h00000;
+//        repeat (128) @(posedge clk);
+//        ALE <= 0;
+//        nWR <= 0;
+//        D8 <= 8'h5a;
+//        repeat (128) @(posedge clk);
+//
+//
+//        IO_nM <= 0;
+//        nRD <= 1;
+//        nWR <= 1;
+//        ALE <= 1;
+//        A20 <= 20'h00000;
+//        repeat (128) @(posedge clk);
+//
+//        ALE <= 0;
+//        nRD <= 0;
+//        repeat (128) @(posedge clk);
+//        $display("read 0 = %x\n", D_from_bus);
+//
+//
+//        IO_nM <= 0;
+//        nRD <= 1;
+//        nWR <= 1;
+//        ALE <= 1;
+//        A20 <= 20'h00008;
+//        repeat (128) @(posedge clk);
+//
+//        ALE <= 0;
+//        nRD <= 0;
+//        repeat (128) @(posedge clk);
+//        $display("read 8 = %x\n", D_from_bus);
+
         IO_nM <= 0;
-
-        repeat (128) @(posedge clk);
-
-        nRD <= 0;
-        ALE <= 0;
-
-        repeat (128) @(posedge clk);
-
-        A20 <= 20'hffff1;
         nRD <= 1;
-        ALE <= 1;
-
-        repeat (128) @(posedge clk);
-
-        ALE <= 0;
-
-        repeat (128) @(posedge clk);
-
-        IO_nM <= 1;
-        A20 <= 20'h00080;
-        D8 <= 3;
-        DT_nR <= 1;
         nWR <= 1;
-        nRD <= 1;
         ALE <= 1;
-
+        A20 <= 20'h20000;
         repeat (128) @(posedge clk);
 
+        ALE <= 0;
         nWR <= 0;
-        ALE <= 0;
+        D8 <= 9;
+        $display("write DDR\n");
 
-        repeat (128) @(posedge clk);
+        fork : wait_for_write
+            begin
+                @(posedge READY);
+                disable wait_for_write;
+            end
+        join
 
-        IO_nM <= 0;
-        nRD <= 1;
-        nWR <= 1;
-        ALE <= 1;
-        A20 <= 20'h00008;
-        repeat (128) @(posedge clk);
-        ALE <= 0;
-        nWR <= 0;
-        D8 <= 8'ha5;
-        repeat (128) @(posedge clk);
-
+        $display("write done\n");
 
         IO_nM <= 0;
         nRD <= 1;
         nWR <= 1;
         ALE <= 1;
-        A20 <= 20'h00000;
-        repeat (128) @(posedge clk);
-        ALE <= 0;
-        nWR <= 0;
-        D8 <= 8'h5a;
-        repeat (128) @(posedge clk);
-
-
-        IO_nM <= 0;
-        nRD <= 1;
-        nWR <= 1;
-        ALE <= 1;
-        A20 <= 20'h00000;
+        A20 <= 20'h20000;
         repeat (128) @(posedge clk);
 
         ALE <= 0;
         nRD <= 0;
-        repeat (128) @(posedge clk);
-        $display("read 0 = %x\n", D_from_bus);
 
+        fork : wait_for_read
+            begin
+                @(posedge READY);
+                disable wait_for_read;
+            end
+        join
 
-        IO_nM <= 0;
-        nRD <= 1;
-        nWR <= 1;
-        ALE <= 1;
-        A20 <= 20'h00008;
-        repeat (128) @(posedge clk);
-
-        ALE <= 0;
-        nRD <= 0;
-        repeat (128) @(posedge clk);
-        $display("read 8 = %x\n", D_from_bus);
-
-
-        IO_nM <= 0;
-        nRD <= 1;
-        nWR <= 1;
-        ALE <= 1;
-        A20 <= 20'h21008;
-        repeat (128) @(posedge clk);
-
-        ALE <= 0;
-        nRD <= 0;
-        repeat (128) @(posedge clk);
         $display("read DDR = %x\n", D_from_bus);
 
         $stop;
     end
+
+    ddr3 dram(
+              .rst_n(ddr3_reset_n),
+              .ck(ddr3_ck_p),
+              .ck_n(ddr3_ck_n),
+              .cke(ddr3_cke),
+              .cs_n(ddr3_cs_n),
+              .ras_n(ddr3_ras_n),
+              .cas_n(ddr3_cas_n),
+              .we_n(ddr3_we_n),
+              .dm_tdqs(ddr3_dm),
+              .ba(ddr3_ba),
+              .addr(ddr3_addr),
+              .dq(ddr3_dq),
+              .dqs(ddr3_dqs_p),
+              .dqs_n(ddr3_dqs_n),
+              //.tdqs_n(0,
+              .odt(ddr3_odt)
+              );
 
 endmodule
 

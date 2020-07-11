@@ -2,7 +2,7 @@
 `default_nettype none
 
 module i8088_cpu
-    (output wire [32:0] AXI_araddr,
+    (output wire [32:0] AXI_araddr33,
      output wire [2:0] AXI_arprot,
      input wire AXI_arready,
      output wire AXI_arvalid,
@@ -12,7 +12,7 @@ module i8088_cpu
      input wire [1:0]  AXI_rresp,
      input wire AXI_rvalid,
 
-     output wire [32:0] AXI_awaddr,
+     output wire [32:0] AXI_awaddr33,
      output wire [2:0] AXI_awprot,
      input wire AXI_awready,
      output wire AXI_awvalid,
@@ -30,6 +30,7 @@ module i8088_cpu
      input wire AXI_CLK,
 
      output wire [3:0] LED,
+     input wire [3:0] PUSH_BUTTON,
 
      input wire RESETN,
 
@@ -135,8 +136,13 @@ module i8088_cpu
 
     assign D_from_cpu_busclk = from_cpu_match ? D_from_cpu : r_D_from_cpu_busclk;
     //assign D_from_cpu_busclk = r_D_from_cpu_busclk;
+    wire [31:0] AXI_araddr;
+    wire [31:0] AXI_awaddr;
 
-    axi_capture#(.ADDR_WIDTH(33))
+    assign AXI_araddr33 = {1'b0, AXI_araddr};
+    assign AXI_awaddr33 = {1'b0, AXI_awaddr};
+
+    axi_capture#(.ADDR_WIDTH(32))
     axi_cap(.A(A32_busclk),
             .D(D32_busclk),
             .axi_busy(axi_busy),
@@ -184,7 +190,18 @@ module i8088_cpu
        .addr_type(addr_type_busclk)
        );
 
-    assign READY_cpu = (! axi_busy);
+    wire READY_busclk = (! axi_busy);
+
+    reg r_READY_cpu;
+    assign READY_cpu = (r_READY_cpu & READY_busclk);
+
+    always @(posedge I8088_CLK) begin
+        if (!RESETN) begin
+            r_READY_cpu <= 0;
+        end else begin
+            r_READY_cpu <= READY_busclk;
+        end
+    end
 
     reg [7:0] D_to_cpu_from_internal;
     wire [7:0] D_to_cpu = (addr_type_busclk == ADDR_TYPE_AXI) ? axi_read_data : D_to_cpu_from_internal;
@@ -200,6 +217,8 @@ module i8088_cpu
             D_to_cpu_from_internal = rom_data;
         end else if (addr_type_busclk == ADDR_TYPE_INTERNAL_RAM) begin
             D_to_cpu_from_internal = ram_data;
+        end else if (addr_type_busclk == ADDR_TYPE_INTERNAL_BUTTON) begin
+            D_to_cpu_from_internal = {4'd0, PUSH_BUTTON};
         end else begin
             D_to_cpu_from_internal = 0;
         end

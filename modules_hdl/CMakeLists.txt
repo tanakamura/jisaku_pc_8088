@@ -8,18 +8,9 @@ verilate(addr_conv
   VERILATOR_ARGS --timescale-override 1ns/1ps -Wno-fatal --trace
   )
 
-add_executable(z80_cpu z80_cpu_main.cpp)
 add_executable(i8088_cpu i8088_cpu_main.cpp)
 add_executable(i8088_top i8088_top_main.cpp)
 
-set(Z80_SRCS
-  tv80/tv80_core.v)
-
-verilate(z80_cpu
-  SOURCES z80_cpu.sv ${Z80_SRCS} ../firmware/z80_rom.v ../firmware/rom.v
-  VERILATOR_ARGS --timescale-override 1ns/1ps -Wno-fatal --trace --top-module z80_cpu
-  INCLUDE_DIRS tv80
-  )
 
 verilate(i8088_cpu
   SOURCES i8088_cpu.sv ../firmware/i8088_rom.v ../firmware/rom.v

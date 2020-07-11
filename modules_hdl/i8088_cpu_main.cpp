@@ -63,14 +63,14 @@ handle_axi_wr(AXI_State *as, Vi8088_cpu *top)
     if (top->AXI_awvalid) {
         top->AXI_awready = 1;
 
-        if (top->AXI_awaddr >= AXI_ADDR32_DRAM_BASE) {
+        if (top->AXI_awaddr33 >= AXI_ADDR32_DRAM_BASE) {
             printf("AXI write addr, addr=0x%08x, range=DRAM\n",
-                   top->AXI_awaddr);
+                   (int)top->AXI_awaddr33);
         } else {
             printf("AXI write addr, addr=0x%08x, range=UNKNOWN\n",
-                   top->AXI_awaddr);
+                   (int)top->AXI_awaddr33);
         }
-        as->wr_axi_addr = top->AXI_awaddr;
+        as->wr_axi_addr = top->AXI_awaddr33;
     } else {
         top->AXI_awready = 0;
     }
@@ -100,18 +100,18 @@ handle_axi_rd(AXI_State *as, Vi8088_cpu *top)
 {
     if (top->AXI_arvalid) {
         top->AXI_arready = 1;
-        if (top->AXI_araddr >= AXI_ADDR32_DRAM_BASE) {
+        if (top->AXI_araddr33 >= AXI_ADDR32_DRAM_BASE) {
             printf("AXI read addr, addr=0x%08x, range=DRAM\n",
-                   top->AXI_araddr);
-        } else if (top->AXI_araddr >= AXI_ADDR32_FLASH_XIP_BASE) {
+                   (int)top->AXI_araddr33);
+        } else if (top->AXI_araddr33 >= AXI_ADDR32_FLASH_XIP_BASE) {
             printf("AXI read addr, addr=0x%08x, range=spi\n",
-                   top->AXI_araddr);
-        } else if (top->AXI_araddr == AXI_ADDR32_UART_STAT) {
+                   (int)top->AXI_araddr33);
+        } else if (top->AXI_araddr33 == AXI_ADDR32_UART_STAT) {
             printf("AXI read addr, addr=0x%08x, range=uart stat\n",
-                   top->AXI_araddr);
+                   (int)top->AXI_araddr33);
         } else {
             printf("AXI read addr, addr=0x%08x, range=UNKNOWN\n",
-                   top->AXI_araddr);
+                   (int)top->AXI_araddr33);
         }
 
     } else {
@@ -161,8 +161,6 @@ main()
         clock(&C, top, tfp);
     }
 
-    top->nDEN_cpu = 1;
-    top->DT_nR_cpu = 1;
     top->RESETN = 1;
 
     AXI_State axi = {};

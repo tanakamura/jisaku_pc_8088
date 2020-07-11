@@ -46,7 +46,7 @@ module jisaku_pc_top(
                      //output wire ck_io0,
 
                      output wire [3:0] led,
-                     //input wire [3:0] btn,
+                     input wire [3:0] btn,
 
                      inout wire qspi_flash_io0_io,
                      inout wire qspi_flash_io1_io,
@@ -127,11 +127,11 @@ module jisaku_pc_top(
     wire bus_DIR;
     assign ck_scl = bus_DIR;
 
-    wire [32:0] AXI_araddr;
+    wire [32:0] AXI_araddr33;
     wire [2:0] AXI_arprot;
     wire AXI_arready;
     wire AXI_arvalid;
-    wire [32:0] AXI_awaddr;
+    wire [32:0] AXI_awaddr33;
     wire [2:0] AXI_awprot;
     wire AXI_awready;
     wire AXI_awvalid;
@@ -179,6 +179,8 @@ module jisaku_pc_top(
 
 `else
     simple_uart_wrapper axi_uart(.*,
+                                 .AXI_araddr(AXI_araddr33),
+                                 .AXI_awaddr(AXI_awaddr33),
                                  .aclk(CLK100MHZ),
                                  .aresetn(ck_rst),
                                  .spi_clk(clk_25mhz),
@@ -251,6 +253,7 @@ module jisaku_pc_top(
     end
 
     i8088_cpu cpu(.*,           // AXI
+                  .PUSH_BUTTON(btn),
                   .I8088_CLK(CPU_CLK),
                   .AXI_CLK(clk_83mhz),
                   .LED(led),
