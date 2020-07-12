@@ -30,6 +30,7 @@ module i8088_cpu
      input wire AXI_CLK,
 
      output wire [3:0] LED,
+     output wire [4:0] GPIO,
      input wire [3:0] PUSH_BUTTON,
 
      input wire RESETN,
@@ -163,8 +164,10 @@ module i8088_cpu
     reg [7:0] ram [0:65536-1];
 
     reg [3:0] LED_reg;
+    reg [4:0] GPIO_reg;
 
     assign LED = LED_reg; 
+    assign GPIO = GPIO_reg;
 
     var nrd_prev;
     var nwr_prev;
@@ -233,6 +236,7 @@ module i8088_cpu
     always @(posedge AXI_CLK) begin
         if (!RESETN) begin
             LED_reg <= 0;
+            GPIO_reg <= 0;
             wrdata_fetch <= 0;
             wraddr_fetch <= 0;
             rdaddr_fetch <= 0;
@@ -267,6 +271,10 @@ module i8088_cpu
 
                     if (addr_type_busclk == ADDR_TYPE_INTERNAL_LED) begin
                         LED_reg <= D_from_cpu_busclk[3:0];
+                    end
+
+                    if (addr_type_busclk == ADDR_TYPE_INTERNAL_GPIO) begin
+                        GPIO_reg <= D_from_cpu_busclk[4:0];
                     end
                 end
             end

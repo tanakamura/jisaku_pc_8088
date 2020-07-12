@@ -17,198 +17,18 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="101278045040fs"></ZoomStartTime>
-      <ZoomEndTime time="153838045041fs"></ZoomEndTime>
-      <Cursor1Time time="126509000000fs"></Cursor1Time>
+      <ZoomStartTime time="0fs"></ZoomStartTime>
+      <ZoomEndTime time="48093584908fs"></ZoomEndTime>
+      <Cursor1Time time="8311000000fs"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="219"></NameColumnWidth>
-      <ValueColumnWidth column_width="78"></ValueColumnWidth>
+      <ValueColumnWidth column_width="70"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="82" />
-   <wvobject type="logic" fp_name="/top_sim/clk">
-      <obj_property name="ElementShortName">clk</obj_property>
-      <obj_property name="ObjectShortName">clk</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/top_sim/READY">
-      <obj_property name="ElementShortName">READY</obj_property>
-      <obj_property name="ObjectShortName">READY</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/top_sim/top/cpu/axi_cap/axi_busy">
-      <obj_property name="ElementShortName">axi_busy</obj_property>
-      <obj_property name="ObjectShortName">axi_busy</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/top_sim/top/cpu/axi_cap/read_data">
-      <obj_property name="ElementShortName">read_data[7:0]</obj_property>
-      <obj_property name="ObjectShortName">read_data[7:0]</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/top_sim/top/cpu/axi_cap/A">
-      <obj_property name="ElementShortName">A[31:0]</obj_property>
-      <obj_property name="ObjectShortName">A[31:0]</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/top_sim/top/cpu/axi_cap/wstrb">
-      <obj_property name="ElementShortName">wstrb[3:0]</obj_property>
-      <obj_property name="ObjectShortName">wstrb[3:0]</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/top_sim/top/cpu/axi_cap/D">
-      <obj_property name="ElementShortName">D[31:0]</obj_property>
-      <obj_property name="ObjectShortName">D[31:0]</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/top_sim/top/cpu/axi_cap/rdaddr_fetch">
-      <obj_property name="ElementShortName">rdaddr_fetch</obj_property>
-      <obj_property name="ObjectShortName">rdaddr_fetch</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/top_sim/top/cpu/axi_cap/wraddr_fetch">
-      <obj_property name="ElementShortName">wraddr_fetch</obj_property>
-      <obj_property name="ObjectShortName">wraddr_fetch</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/top_sim/top/cpu/axi_cap/wrdata_fetch">
-      <obj_property name="ElementShortName">wrdata_fetch</obj_property>
-      <obj_property name="ObjectShortName">wrdata_fetch</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/top_sim/top/cpu/axi_cap/RESETN">
-      <obj_property name="ElementShortName">RESETN</obj_property>
-      <obj_property name="ObjectShortName">RESETN</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/top_sim/top/cpu/axi_cap/AXI_awaddr">
-      <obj_property name="ElementShortName">AXI_awaddr[31:0]</obj_property>
-      <obj_property name="ObjectShortName">AXI_awaddr[31:0]</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/top_sim/top/cpu/axi_cap/AXI_awvalid">
-      <obj_property name="ElementShortName">AXI_awvalid</obj_property>
-      <obj_property name="ObjectShortName">AXI_awvalid</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/top_sim/top/cpu/axi_cap/AXI_awready">
-      <obj_property name="ElementShortName">AXI_awready</obj_property>
-      <obj_property name="ObjectShortName">AXI_awready</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/top_sim/top/cpu/axi_cap/AXI_wvalid">
-      <obj_property name="ElementShortName">AXI_wvalid</obj_property>
-      <obj_property name="ObjectShortName">AXI_wvalid</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/top_sim/top/cpu/axi_cap/AXI_wstrb">
-      <obj_property name="ElementShortName">AXI_wstrb[3:0]</obj_property>
-      <obj_property name="ObjectShortName">AXI_wstrb[3:0]</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/top_sim/top/cpu/axi_cap/AXI_wdata">
-      <obj_property name="ElementShortName">AXI_wdata[31:0]</obj_property>
-      <obj_property name="ObjectShortName">AXI_wdata[31:0]</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/top_sim/top/cpu/axi_cap/AXI_wready">
-      <obj_property name="ElementShortName">AXI_wready</obj_property>
-      <obj_property name="ObjectShortName">AXI_wready</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/top_sim/top/cpu/axi_cap/AXI_araddr">
-      <obj_property name="ElementShortName">AXI_araddr[31:0]</obj_property>
-      <obj_property name="ObjectShortName">AXI_araddr[31:0]</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/top_sim/top/cpu/axi_cap/AXI_arvalid">
-      <obj_property name="ElementShortName">AXI_arvalid</obj_property>
-      <obj_property name="ObjectShortName">AXI_arvalid</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/top_sim/top/cpu/axi_cap/AXI_arready">
-      <obj_property name="ElementShortName">AXI_arready</obj_property>
-      <obj_property name="ObjectShortName">AXI_arready</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/top_sim/top/cpu/axi_cap/AXI_rready">
-      <obj_property name="ElementShortName">AXI_rready</obj_property>
-      <obj_property name="ObjectShortName">AXI_rready</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/top_sim/top/cpu/axi_cap/AXI_rvalid">
-      <obj_property name="ElementShortName">AXI_rvalid</obj_property>
-      <obj_property name="ObjectShortName">AXI_rvalid</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/top_sim/top/cpu/axi_cap/AXI_rdata">
-      <obj_property name="ElementShortName">AXI_rdata[31:0]</obj_property>
-      <obj_property name="ObjectShortName">AXI_rdata[31:0]</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/top_sim/top/cpu/axi_cap/AXI_bready">
-      <obj_property name="ElementShortName">AXI_bready</obj_property>
-      <obj_property name="ObjectShortName">AXI_bready</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/top_sim/top/cpu/axi_cap/AXI_bresp">
-      <obj_property name="ElementShortName">AXI_bresp[1:0]</obj_property>
-      <obj_property name="ObjectShortName">AXI_bresp[1:0]</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/top_sim/top/cpu/axi_cap/AXI_bvalid">
-      <obj_property name="ElementShortName">AXI_bvalid</obj_property>
-      <obj_property name="ObjectShortName">AXI_bvalid</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/top_sim/top/cpu/axi_cap/AXI_CLK">
-      <obj_property name="ElementShortName">AXI_CLK</obj_property>
-      <obj_property name="ObjectShortName">AXI_CLK</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/top_sim/top/cpu/axi_cap/axi_rready">
-      <obj_property name="ElementShortName">axi_rready</obj_property>
-      <obj_property name="ObjectShortName">axi_rready</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/top_sim/top/cpu/axi_cap/axi_arvalid">
-      <obj_property name="ElementShortName">axi_arvalid</obj_property>
-      <obj_property name="ObjectShortName">axi_arvalid</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/top_sim/top/cpu/axi_cap/axi_readdata">
-      <obj_property name="ElementShortName">axi_readdata[7:0]</obj_property>
-      <obj_property name="ObjectShortName">axi_readdata[7:0]</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/top_sim/top/cpu/axi_cap/axi_awvalid">
-      <obj_property name="ElementShortName">axi_awvalid</obj_property>
-      <obj_property name="ObjectShortName">axi_awvalid</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/top_sim/top/cpu/axi_cap/axi_wvalid">
-      <obj_property name="ElementShortName">axi_wvalid</obj_property>
-      <obj_property name="ObjectShortName">axi_wvalid</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/top_sim/top/cpu/axi_cap/axi_wstrb">
-      <obj_property name="ElementShortName">axi_wstrb[3:0]</obj_property>
-      <obj_property name="ObjectShortName">axi_wstrb[3:0]</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/top_sim/top/cpu/axi_cap/axi_wdata">
-      <obj_property name="ElementShortName">axi_wdata[31:0]</obj_property>
-      <obj_property name="ObjectShortName">axi_wdata[31:0]</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/top_sim/top/cpu/axi_cap/axi_raddr">
-      <obj_property name="ElementShortName">axi_raddr[31:0]</obj_property>
-      <obj_property name="ObjectShortName">axi_raddr[31:0]</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/top_sim/top/cpu/axi_cap/axi_waddr">
-      <obj_property name="ElementShortName">axi_waddr[31:0]</obj_property>
-      <obj_property name="ObjectShortName">axi_waddr[31:0]</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/top_sim/top/cpu/axi_cap/read_data_buf">
-      <obj_property name="ElementShortName">read_data_buf[7:0]</obj_property>
-      <obj_property name="ObjectShortName">read_data_buf[7:0]</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/top_sim/top/cpu/axi_cap/read_data_axi">
-      <obj_property name="ElementShortName">read_data_axi[7:0]</obj_property>
-      <obj_property name="ObjectShortName">read_data_axi[7:0]</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/top_sim/top/cpu/axi_cap/axi_busy_buf">
-      <obj_property name="ElementShortName">axi_busy_buf</obj_property>
-      <obj_property name="ObjectShortName">axi_busy_buf</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/top_sim/top/cpu/axi_cap/rdaddr_fetched">
-      <obj_property name="ElementShortName">rdaddr_fetched</obj_property>
-      <obj_property name="ObjectShortName">rdaddr_fetched</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/top_sim/top/cpu/axi_cap/wraddr_fetched">
-      <obj_property name="ElementShortName">wraddr_fetched</obj_property>
-      <obj_property name="ObjectShortName">wraddr_fetched</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/top_sim/top/cpu/axi_cap/wrdata_fetched">
-      <obj_property name="ElementShortName">wrdata_fetched</obj_property>
-      <obj_property name="ObjectShortName">wrdata_fetched</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/top_sim/top/cpu/axi_cap/bresp_wait">
-      <obj_property name="ElementShortName">bresp_wait</obj_property>
-      <obj_property name="ObjectShortName">bresp_wait</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/top_sim/top/cpu/axi_cap/axi_busy_axi">
-      <obj_property name="ElementShortName">axi_busy_axi</obj_property>
-      <obj_property name="ObjectShortName">axi_busy_axi</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/top_sim/top/cpu/axi_cap/axi_to_bus_match">
-      <obj_property name="ElementShortName">axi_to_bus_match</obj_property>
-      <obj_property name="ObjectShortName">axi_to_bus_match</obj_property>
+   <WVObjectSize size="31" />
+   <wvobject type="array" fp_name="/top_sim/top/AXI_araddr33">
+      <obj_property name="ElementShortName">AXI_araddr33[32:0]</obj_property>
+      <obj_property name="ObjectShortName">AXI_araddr33[32:0]</obj_property>
    </wvobject>
    <wvobject type="array" fp_name="/top_sim/top/AXI_arprot">
       <obj_property name="ElementShortName">AXI_arprot[2:0]</obj_property>
@@ -221,6 +41,10 @@
    <wvobject type="logic" fp_name="/top_sim/top/AXI_arvalid">
       <obj_property name="ElementShortName">AXI_arvalid</obj_property>
       <obj_property name="ObjectShortName">AXI_arvalid</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top_sim/top/AXI_awaddr33">
+      <obj_property name="ElementShortName">AXI_awaddr33[32:0]</obj_property>
+      <obj_property name="ObjectShortName">AXI_awaddr33[32:0]</obj_property>
    </wvobject>
    <wvobject type="array" fp_name="/top_sim/top/AXI_awprot">
       <obj_property name="ElementShortName">AXI_awprot[2:0]</obj_property>
@@ -278,80 +102,52 @@
       <obj_property name="ElementShortName">AXI_wvalid</obj_property>
       <obj_property name="ObjectShortName">AXI_wvalid</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/top_sim/dram/TZQCS">
-      <obj_property name="ElementShortName">TZQCS[31:0]</obj_property>
-      <obj_property name="ObjectShortName">TZQCS[31:0]</obj_property>
+   <wvobject type="logic" fp_name="/top_sim/top/READY">
+      <obj_property name="ElementShortName">READY</obj_property>
+      <obj_property name="ObjectShortName">READY</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/top_sim/dram/TZQINIT">
-      <obj_property name="ElementShortName">TZQINIT[31:0]</obj_property>
-      <obj_property name="ObjectShortName">TZQINIT[31:0]</obj_property>
+   <wvobject type="logic" fp_name="/top_sim/top/CPU_CLK">
+      <obj_property name="ElementShortName">CPU_CLK</obj_property>
+      <obj_property name="ObjectShortName">CPU_CLK</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/top_sim/dram/TZQOPER">
-      <obj_property name="ElementShortName">TZQOPER[31:0]</obj_property>
-      <obj_property name="ObjectShortName">TZQOPER[31:0]</obj_property>
+   <wvobject type="logic" fp_name="/top_sim/top/spi_clk">
+      <obj_property name="ElementShortName">spi_clk</obj_property>
+      <obj_property name="ObjectShortName">spi_clk</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/top_sim/dram/rst_n">
-      <obj_property name="ElementShortName">rst_n</obj_property>
-      <obj_property name="ObjectShortName">rst_n</obj_property>
+   <wvobject type="logic" fp_name="/top_sim/top/spi_io0_io">
+      <obj_property name="ElementShortName">spi_io0_io</obj_property>
+      <obj_property name="ObjectShortName">spi_io0_io</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/top_sim/dram/ck">
-      <obj_property name="ElementShortName">ck</obj_property>
-      <obj_property name="ObjectShortName">ck</obj_property>
+   <wvobject type="logic" fp_name="/top_sim/top/spi_io1_io">
+      <obj_property name="ElementShortName">spi_io1_io</obj_property>
+      <obj_property name="ObjectShortName">spi_io1_io</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/top_sim/dram/ck_n">
-      <obj_property name="ElementShortName">ck_n</obj_property>
-      <obj_property name="ObjectShortName">ck_n</obj_property>
+   <wvobject type="logic" fp_name="/top_sim/top/spi_sck_io">
+      <obj_property name="ElementShortName">spi_sck_io</obj_property>
+      <obj_property name="ObjectShortName">spi_sck_io</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/top_sim/dram/cke">
-      <obj_property name="ElementShortName">cke</obj_property>
-      <obj_property name="ObjectShortName">cke</obj_property>
+   <wvobject type="logic" fp_name="/top_sim/top/spi_ss_io">
+      <obj_property name="ElementShortName">spi_ss_io</obj_property>
+      <obj_property name="ObjectShortName">spi_ss_io</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/top_sim/dram/cs_n">
-      <obj_property name="ElementShortName">cs_n</obj_property>
-      <obj_property name="ObjectShortName">cs_n</obj_property>
+   <wvobject type="logic" fp_name="/top_sim/ck_io4">
+      <obj_property name="ElementShortName">ck_io4</obj_property>
+      <obj_property name="ObjectShortName">ck_io4</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/top_sim/dram/ras_n">
-      <obj_property name="ElementShortName">ras_n</obj_property>
-      <obj_property name="ObjectShortName">ras_n</obj_property>
+   <wvobject type="logic" fp_name="/top_sim/ck_io3">
+      <obj_property name="ElementShortName">ck_io3</obj_property>
+      <obj_property name="ObjectShortName">ck_io3</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/top_sim/dram/cas_n">
-      <obj_property name="ElementShortName">cas_n</obj_property>
-      <obj_property name="ObjectShortName">cas_n</obj_property>
+   <wvobject type="logic" fp_name="/top_sim/ck_io2">
+      <obj_property name="ElementShortName">ck_io2</obj_property>
+      <obj_property name="ObjectShortName">ck_io2</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/top_sim/dram/we_n">
-      <obj_property name="ElementShortName">we_n</obj_property>
-      <obj_property name="ObjectShortName">we_n</obj_property>
+   <wvobject type="logic" fp_name="/top_sim/ck_io1">
+      <obj_property name="ElementShortName">ck_io1</obj_property>
+      <obj_property name="ObjectShortName">ck_io1</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/top_sim/dram/dm_tdqs">
-      <obj_property name="ElementShortName">dm_tdqs[1:0]</obj_property>
-      <obj_property name="ObjectShortName">dm_tdqs[1:0]</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/top_sim/dram/ba">
-      <obj_property name="ElementShortName">ba[2:0]</obj_property>
-      <obj_property name="ObjectShortName">ba[2:0]</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/top_sim/dram/addr">
-      <obj_property name="ElementShortName">addr[13:0]</obj_property>
-      <obj_property name="ObjectShortName">addr[13:0]</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/top_sim/dram/dq">
-      <obj_property name="ElementShortName">dq[15:0]</obj_property>
-      <obj_property name="ObjectShortName">dq[15:0]</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/top_sim/dram/dqs">
-      <obj_property name="ElementShortName">dqs[1:0]</obj_property>
-      <obj_property name="ObjectShortName">dqs[1:0]</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/top_sim/dram/dqs_n">
-      <obj_property name="ElementShortName">dqs_n[1:0]</obj_property>
-      <obj_property name="ObjectShortName">dqs_n[1:0]</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/top_sim/dram/tdqs_n">
-      <obj_property name="ElementShortName">tdqs_n[1:0]</obj_property>
-      <obj_property name="ObjectShortName">tdqs_n[1:0]</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/top_sim/dram/odt">
-      <obj_property name="ElementShortName">odt</obj_property>
-      <obj_property name="ObjectShortName">odt</obj_property>
+   <wvobject type="logic" fp_name="/top_sim/ck_io0">
+      <obj_property name="ElementShortName">ck_io0</obj_property>
+      <obj_property name="ObjectShortName">ck_io0</obj_property>
    </wvobject>
 </wave_config>

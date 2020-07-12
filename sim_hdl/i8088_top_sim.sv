@@ -75,6 +75,12 @@ module top_sim(
     wire ck_io6; // CLK
     wire ck_io5; // RESET
 
+    wire ck_io4;                // GPIO
+    wire ck_io3;                // GPIO
+    wire ck_io2;                // GPIO
+    wire ck_io1;                // GPIO
+    wire ck_io0;                // GPIO
+
     wire READY = ck_io7;
 
     wire [3:0] led;
@@ -85,6 +91,12 @@ module top_sim(
     wire qspi_flash_io3_io;
     wire qspi_flash_sck_io;
     wire qspi_flash_ss_io;
+
+    wire spi_clk;
+    wire spi_io0_io;
+    wire spi_io1_io;
+    wire spi_sck_io;
+    wire spi_ss_io;
 
     wire usb_uart_rxd;
     wire usb_uart_txd;
@@ -123,6 +135,47 @@ module top_sim(
                       .ck_rst(resetn),
                       .*
     );
+
+    task automatic wait_ready();
+        fork : w
+            begin
+                @(posedge READY);
+                disable w;
+            end
+        join
+    endtask
+
+    task automatic ale(integer addr, integer io);
+        IO_nM <= io;
+        nRD <= 1;
+        nWR <= 1;
+        ALE <= 1;
+        A20 <= addr;
+        repeat (32) @(posedge clk);
+    endtask
+
+    task automatic write_and_wait(integer addr, integer io, integer val);
+        ale(addr, io);
+        ALE <= 0;
+        nWR <= 0;
+        D8 <= val;
+        wait_ready();
+    endtask
+
+    task automatic write_and_delay(integer addr, integer io, integer val);
+        ale(addr, io);
+        ALE <= 0;
+        nWR <= 0;
+        D8 <= val;
+        repeat (32) @(posedge clk);
+    endtask
+
+    task automatic read_and_wait(integer addr, integer io);
+        ale(addr, io);
+        ALE <= 0;
+        nRD <= 0;
+        wait_ready();
+    endtask
 
     initial begin
         nRD <= 1;
@@ -225,67 +278,83 @@ module top_sim(
 //        repeat (128) @(posedge clk);
 //        $display("read 8 = %x\n", D_from_bus);
 
-        IO_nM <= 0;
-        nRD <= 1;
-        nWR <= 1;
-        ALE <= 1;
-        A20 <= 20'h20000;
-        repeat (128) @(posedge clk);
+//        IO_nM <= 0;
+//        nRD <= 1;
+//        nWR <= 1;
+//        ALE <= 1;
+//        A20 <= 20'h20000;
+//        repeat (128) @(posedge clk);
+//
+//        ALE <= 0;
+//        nWR <= 0;
+//        D8 <= 9;
+//        $display("write DDR\n");
+//
+//        fork : wait_for_write
+//            begin
+//                @(posedge READY);
+//                disable wait_for_write;
+//            end
+//        join
+//
+//        $display("write done\n");
+//
+//        IO_nM <= 0;
+//        nRD <= 1;
+//        nWR <= 1;
+//        ALE <= 1;
+//        A20 <= 20'h20000;
+//        repeat (128) @(posedge clk);
+//
+//        ALE <= 0;
+//        nRD <= 0;
+//
+//        fork : wait_for_read
+//            begin
+//                @(posedge READY);
+//                disable wait_for_read;
+//            end
+//        join
+//
+//        $display("read DDR = %x\n", D_from_bus);
 
-        ALE <= 0;
-        nWR <= 0;
-        D8 <= 9;
-        $display("write DDR\n");
+        write_and_delay(20'd129, 1, 8'h2);
+        write_and_delay(20'd129, 1, 8'h1);
 
-        fork : wait_for_write
-            begin
-                @(posedge READY);
-                disable wait_for_write;
-            end
-        join
+        write_and_wait(20'd8, 1, 0);
+        $display("write SRR\n");
+        write_and_wait(20'd9, 1, 8'h6);
+        $display("write CR\n");
 
-        $display("write done\n");
+        write_and_wait(20'd10, 1, 8'h41);
+        write_and_wait(20'd10, 1, 8'h42);
 
-        IO_nM <= 0;
-        nRD <= 1;
-        nWR <= 1;
-        ALE <= 1;
-        A20 <= 20'h20000;
-        repeat (128) @(posedge clk);
-
-        ALE <= 0;
-        nRD <= 0;
-
-        fork : wait_for_read
-            begin
-                @(posedge READY);
-                disable wait_for_read;
-            end
-        join
-
-        $display("read DDR = %x\n", D_from_bus);
+        read_and_wait(20'd8, 1);
+        $display("SR+0 = %x\n", D_from_bus);
+        read_and_wait(20'd9, 1);
+        $display("SR+1 = %x\n", D_from_bus);
 
         $stop;
     end
 
-    ddr3 dram(
-              .rst_n(ddr3_reset_n),
-              .ck(ddr3_ck_p),
-              .ck_n(ddr3_ck_n),
-              .cke(ddr3_cke),
-              .cs_n(ddr3_cs_n),
-              .ras_n(ddr3_ras_n),
-              .cas_n(ddr3_cas_n),
-              .we_n(ddr3_we_n),
-              .dm_tdqs(ddr3_dm),
-              .ba(ddr3_ba),
-              .addr(ddr3_addr),
-              .dq(ddr3_dq),
-              .dqs(ddr3_dqs_p),
-              .dqs_n(ddr3_dqs_n),
-              //.tdqs_n(0,
-              .odt(ddr3_odt)
-              );
+//    ddr3 dram(
+//              .rst_n(ddr3_reset_n),
+//              .ck(ddr3_ck_p),
+//              .ck_n(ddr3_ck_n),
+//              .cke(ddr3_cke),
+//              .cs_n(ddr3_cs_n),
+//              .ras_n(ddr3_ras_n),
+//              .cas_n(ddr3_cas_n),
+//              .we_n(ddr3_we_n),
+//              .dm_tdqs(ddr3_dm),
+//              .ba(ddr3_ba),
+//              .addr(ddr3_addr),
+//              .dq(ddr3_dq),
+//              .dqs(ddr3_dqs_p),
+//              .dqs_n(ddr3_dqs_n),
+//              //.tdqs_n(0,
+//              .odt(ddr3_odt)
+//              );
 
 endmodule
 

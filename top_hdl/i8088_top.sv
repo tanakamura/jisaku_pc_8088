@@ -39,11 +39,12 @@ module jisaku_pc_top(
                      output wire ck_io7, // READY
                      output wire ck_io6, // CLK
                      output wire ck_io5, // RESET
-                     //output wire ck_io4,
-                     //output wire ck_io3,
-                     //output wire ck_io2,
-                     //output wire ck_io1,
-                     //output wire ck_io0,
+                     
+                     output wire ck_io4, // GPIO4
+                     output wire ck_io3, // GPIO3
+                     output wire ck_io2, // GPIO2
+                     output wire ck_io1, // GPIO1
+                     output wire ck_io0, // GPIO0
 
                      output wire [3:0] led,
                      input wire [3:0] btn,
@@ -54,6 +55,12 @@ module jisaku_pc_top(
                      inout wire qspi_flash_io3_io,
                      inout wire qspi_flash_sck_io,
                      inout wire qspi_flash_ss_io,
+
+                     input wire spi_clk,
+                     inout wire spi_io0_io,
+                     inout wire spi_io1_io,
+                     inout wire spi_sck_io,
+                     inout wire spi_ss_io,
 
                      output wire [13:0] ddr3_addr,
                      output wire [2:0] ddr3_ba,
@@ -158,10 +165,12 @@ module jisaku_pc_top(
 `ifdef GENERATE_VERILATOR
     assign clk_25mhz = clk_25mhz_logic;
 `else
-    BUFR clk_div_25(.CE(1),
-                    .CLR(0),
-                    .I(clk_25mhz_logic),
-                    .O(clk_25mhz));
+    assign clk_25mhz = clk_25mhz_logic;
+
+//    BUFR clk_div_25(.CE(1),
+//                    .CLR(0),
+//                    .I(clk_25mhz_logic),
+//                    .O(clk_25mhz));
 `endif
     initial begin
         div_cnt_25mhz = 0;
@@ -252,11 +261,15 @@ module jisaku_pc_top(
         end
     end
 
+    wire [4:0] gpio;
+    assign {ck_io4,ck_io3,ck_io2,ck_io1,ck_io0} = gpio[4:0];
+
     i8088_cpu cpu(.*,           // AXI
                   .PUSH_BUTTON(btn),
                   .I8088_CLK(CPU_CLK),
                   .AXI_CLK(clk_83mhz),
                   .LED(led),
+                  .GPIO(gpio),
                   .RESETN(PERIPHERAL_RESETN),
                   .A_cpu(r_A_cpu),
                   .AD8_in_cpu(r_AD8_cpu),

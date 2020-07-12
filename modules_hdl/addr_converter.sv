@@ -114,6 +114,20 @@ module addr_converter
                       addr_type = ADDR_TYPE_AXI;
                       A32 = AXI_ADDR32_UART_STAT;
                   end
+
+                  8'd8: begin
+                      addr_type = ADDR_TYPE_AXI;
+                      A32 = AXI_ADDR32_SPI_BASE + 32'h64 + 0; // SR
+                  end
+                  8'd9: begin
+                      addr_type = ADDR_TYPE_AXI;
+                      A32 = AXI_ADDR32_SPI_BASE + 32'h64 + 1; // SR + 1
+                  end
+                  8'd10: begin
+                      addr_type = ADDR_TYPE_AXI;
+                      A32 = AXI_ADDR32_SPI_BASE + 32'h6C; // DRR
+                  end
+
                   8'd128: begin
                       addr_type = ADDR_TYPE_INTERNAL_BUTTON;
                       A32 = 0;
@@ -155,6 +169,33 @@ module addr_converter
                     D32 = 32'd0;
                     addr_type = ADDR_TYPE_INTERNAL_LED;
                 end
+
+                8'd129: begin
+                    wstrb = 0;
+                    A32 = 0;
+                    D32 = 32'd0;
+                    addr_type = ADDR_TYPE_INTERNAL_GPIO;
+                end
+
+                8'd8: begin     // SRR
+                    wstrb = 4'b1111;
+                    A32 = AXI_ADDR32_SPI_BASE + 32'h40 + 0; // SRR+0,SRR+1,SRR+2,SRR+3
+                    D32 = 32'h0000_000a;
+                    addr_type = ADDR_TYPE_AXI;
+                end
+                8'd9: begin     // CR
+                    wstrb = 4'b1111;
+                    A32 = AXI_ADDR32_SPI_BASE + 32'h60 + 0; // CR+0, CR+1
+                    D32 = {24'd0, D[7:0]};
+                    addr_type = ADDR_TYPE_AXI;
+                end
+                8'd10: begin    // DTR
+                    wstrb = 4'b0001;
+                    A32 = AXI_ADDR32_SPI_BASE + 32'h68 + 0; // DTR+0
+                    D32 = {24'd0, D[7:0]};
+                    addr_type = ADDR_TYPE_AXI;
+                end
+
 
                 default: begin
                     wstrb = 1;

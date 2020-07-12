@@ -1,4 +1,4 @@
-all : blink_led.bin ram_access.bin button_led.bin
+all : blink_led.bin ram_access.bin button_led.bin display.bin
 
 %.bin: %.s
-	nasm -o $@ $<
+	nasm -l $<.lst -o $@ $<
