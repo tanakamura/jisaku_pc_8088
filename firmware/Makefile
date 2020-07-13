@@ -1,4 +1,4 @@
-all: z80_firmware_hex.dat z80_main 8088_firmware_hex.dat
+all: 8088_firmware_hex.dat
 
 AS=z80-as
 Z80_LDFLAGS=-b coff-z80
@@ -21,10 +21,17 @@ clean:
 flash: z80_main
 	openocd -f flash.tcl -c ""
 
-8088_firmware: 8088_firmware.s
+8088_firmware_hex.dat: 8088_firmware genhex
+	./genhex 256 < $< > $@
+
+spi_load_8088: spi_load_8088.s
+	nasm -l $@.lst $< -o $@
+por_8088: por_8088.s
 	nasm -l $@.lst $< -o $@
 
-8088_firmware_hex.dat: 8088_firmware
-	./genhex 16 < $< > $@
+pack_8088_rom: pack_8088_rom.c
+
+8088_firmware: pack_8088_rom por_8088 spi_load_8088
+	./pack_8088_rom $@
 
 .DELETE_ON_ERROR:

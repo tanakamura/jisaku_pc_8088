@@ -158,7 +158,7 @@ module i8088_cpu
 
             );
 
-    i8088_rom rom(.ADDR(A32_busclk[3:0]),
+    i8088_rom rom(.ADDR(A32_busclk[7:0]),
                   .DATA(rom_data));
 
     reg [7:0] ram [0:65536-1];

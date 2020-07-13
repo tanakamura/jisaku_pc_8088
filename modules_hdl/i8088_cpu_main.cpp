@@ -46,6 +46,15 @@ clock(Clock *clk, Vi8088_cpu *top, VerilatedVcdC *tfp)
     }
 }
 
+static void
+cpu_clock(Clock *clk, Vi8088_cpu *top, VerilatedVcdC *tfp)
+{
+    for (int i=0; i<15; i++) {
+        clock(clk, top, tfp);
+    }
+}
+
+
 struct AXI_State {
     uint32_t rd_axi_addr;
     int rd_delay_cur;
@@ -152,7 +161,7 @@ main()
 
     int clk;
     Vi8088_cpu *top = new Vi8088_cpu;
-    top->trace(tfp, 1);
+    top->trace(tfp, 2);
     tfp->open("i8088_cpu.vcd");
 
     top->RESETN = 0;
@@ -165,16 +174,27 @@ main()
 
     AXI_State axi = {};
 
-    clock(&C, top, tfp);
+    top->nRD_cpu = 0;
+    top->nWR_cpu = 1;
+    top->IO_nM_cpu = 0;
 
-    
+    cpu_clock(&C, top, tfp);
+    top->A_cpu = 0xffff0;
+    cpu_clock(&C, top, tfp);
+    top->A_cpu = 0xffff1;
+    cpu_clock(&C, top, tfp);
 
-    for (int i=0; i<100000; i++) {
-        clock(&C, top, tfp);
-
-        handle_axi_wr(&axi,top);
-        handle_axi_rd(&axi,top);
+    for (int i=0; i<16; i++) {
+        top->A_cpu = 0xfff00 + i;
+        cpu_clock(&C, top, tfp);
     }
+
+//    for (int i=0; i<100000; i++) {
+//        clock(&C, top, tfp);
+//
+//        handle_axi_wr(&axi,top);
+//        handle_axi_rd(&axi,top);
+//    }
 
     top->final();
     tfp->close();

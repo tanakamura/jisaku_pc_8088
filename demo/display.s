@@ -95,7 +95,7 @@ horiz:
 loop:
 	out	(128), al
 	inc	al
-	mov	cx, 0x100
+	mov	cx, 0x8000
 
 	push	ax
 	spi_send 0xd3
@@ -116,6 +116,7 @@ loop:
 ;blink_end:
 ;	pop	ax
 	
+	out	(LED), al
 
 	call	delay
 	jmp	loop

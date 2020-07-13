@@ -2,6 +2,10 @@ z80_main
 z80_firmware
 8088_main
 8088_por
+spi_load_8088
+por_8088
+8088_firmware
+pack_8088_rom
 *.lst
 *.dat
 *.map

@@ -23,32 +23,26 @@ verilate(i8088_top
 )
 
 add_executable(genhex ../firmware/genhex.c)
+add_executable(pack_8088_rom ../firmware/pack_8088_rom.c)
+
+add_custom_target(firmware ALL
+  DEPENDS 8088_firmware_hex.dat)
 
 set(FW_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR})
 
-add_custom_target(firmware ALL
-  DEPENDS ${FW_BUILD_DIR}/z80_firmware_hex.dat ${FW_BUILD_DIR}/8088_firmware_hex.dat)
-
-add_custom_command(OUTPUT ${FW_BUILD_DIR}/z80_firmware.o
-  DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/../firmware/z80_firmware.s
-  COMMAND z80-as ${CMAKE_CURRENT_SOURCE_DIR}/../firmware/z80_firmware.s -o ${FW_BUILD_DIR}/z80_firmware.o)
-
-add_custom_command(OUTPUT ${FW_BUILD_DIR}/z80_firmware
-  DEPENDS ${FW_BUILD_DIR}/z80_firmware.o
-  COMMAND z80-ld -Ttext=0 -O binary ${FW_BUILD_DIR}/z80_firmware.o -o ${FW_BUILD_DIR}/z80_firmware && 
-  z80-objdump -D ${FW_BUILD_DIR}/z80_firmware.o )
-
-
-add_custom_command(OUTPUT ${FW_BUILD_DIR}/z80_firmware_hex.dat
-  DEPENDS ${FW_BUILD_DIR}/z80_firmware
-  COMMAND ${FW_BUILD_DIR}/genhex < ${FW_BUILD_DIR}/z80_firmware > ${FW_BUILD_DIR}/z80_firmware_hex.dat)
-
-
+add_custom_command(OUTPUT ${FW_BUILD_DIR}/por_8088
+  DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/../firmware/por_8088.s
+  COMMAND nasm ${CMAKE_CURRENT_SOURCE_DIR}/../firmware/por_8088.s -o ${FW_BUILD_DIR}/por_8088)
+add_custom_command(OUTPUT ${FW_BUILD_DIR}/spi_load_8088
+  DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/../firmware/spi_load_8088.s
+  COMMAND nasm ${CMAKE_CURRENT_SOURCE_DIR}/../firmware/spi_load_8088.s -o ${FW_BUILD_DIR}/spi_load_8088)
 
 add_custom_command(OUTPUT ${FW_BUILD_DIR}/8088_firmware
-  DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/../firmware/8088_firmware.s
-  COMMAND nasm ${CMAKE_CURRENT_SOURCE_DIR}/../firmware/8088_firmware.s -o ${FW_BUILD_DIR}/8088_firmware)
+  DEPENDS pack_8088_rom
+  DEPENDS ${FW_BUILD_DIR}/por_8088
+  DEPENDS ${FW_BUILD_DIR}/spi_load_8088
+  COMMAND ${CMAKE_CURRENT_BINARY_DIR}/pack_8088_rom ${FW_BUILD_DIR}/8088_firmware)
 
 add_custom_command(OUTPUT ${FW_BUILD_DIR}/8088_firmware_hex.dat
   DEPENDS ${FW_BUILD_DIR}/8088_firmware
-  COMMAND ${FW_BUILD_DIR}/genhex 16 < ${FW_BUILD_DIR}/8088_firmware > ${FW_BUILD_DIR}/8088_firmware_hex.dat)
+  COMMAND ${FW_BUILD_DIR}/genhex 256 < ${FW_BUILD_DIR}/8088_firmware > ${FW_BUILD_DIR}/8088_firmware_hex.dat)

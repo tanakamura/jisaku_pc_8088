@@ -40,22 +40,12 @@ module mem_addr_converter
             end
         end else begin
             always_comb begin
-                if (A[19:4] == 16'hffff) begin
+                if (A[19:8] == 12'hfff) begin
                     addr_type = ADDR_TYPE_INTERNAL_ROM;
-                    A32 = {28'd0, A[3:0]};
-                end else if (A[17] == 1) begin
-                    A32 = {15'd0, A[16:0]} | AXI_ADDR32_DRAM_BASE;
-                    addr_type = ADDR_TYPE_AXI;
+                    A32 = {24'd0, A[7:0]};
                 end else begin
-                    if (A[16] == 1) begin
-                        // 0b1_xxxx_xxxx_xxxx_xxxx spi flash
-                        A32 = {16'd0, A[15:0]} | (AXI_ADDR32_FLASH_XIP_BASE+32'h0080_0000);
-                        addr_type = ADDR_TYPE_AXI;
-                    end else begin
-                        // 0b0_xxxx_xxxx_xxxx_xxxx internal ram
-                        A32 = {16'd0, A[15:0]};
-                        addr_type = ADDR_TYPE_INTERNAL_RAM;
-                    end
+                    A32 = {12'd0, A[ADDR_WIDTH-1:0]} | AXI_ADDR32_DRAM_BASE;
+                    addr_type = ADDR_TYPE_AXI;
                 end
             end
         end
@@ -127,6 +117,28 @@ module addr_converter
                       addr_type = ADDR_TYPE_AXI;
                       A32 = AXI_ADDR32_SPI_BASE + 32'h6C; // DRR
                   end
+                  8'd11: begin
+                      addr_type = ADDR_TYPE_AXI;
+                      A32 = AXI_ADDR32_SPI_BASE + 32'h70; // SSR
+                  end
+
+                  8'd12: begin
+                      addr_type = ADDR_TYPE_AXI;
+                      A32 = AXI_ADDR32_SPI_FLASH_BASE + 32'h64 + 0; // SR
+                  end
+                  8'd13: begin
+                      addr_type = ADDR_TYPE_AXI;
+                      A32 = AXI_ADDR32_SPI_FLASH_BASE + 32'h64 + 1; // SR + 1
+                  end
+                  8'd14: begin
+                      addr_type = ADDR_TYPE_AXI;
+                      A32 = AXI_ADDR32_SPI_FLASH_BASE + 32'h6C; // DRR
+                  end
+                  8'd15: begin
+                      addr_type = ADDR_TYPE_AXI;
+                      A32 = AXI_ADDR32_SPI_FLASH_BASE + 32'h70; // SSR
+                  end
+
 
                   8'd128: begin
                       addr_type = ADDR_TYPE_INTERNAL_BUTTON;
@@ -195,6 +207,38 @@ module addr_converter
                     D32 = {24'd0, D[7:0]};
                     addr_type = ADDR_TYPE_AXI;
                 end
+                8'd11: begin    // SSR
+                    wstrb = 4'b0001;
+                    A32 = AXI_ADDR32_SPI_BASE + 32'h70 + 0; // SSR+0
+                    D32 = {24'd0, D[7:0]};
+                    addr_type = ADDR_TYPE_AXI;
+                end
+
+                8'd12: begin     // SRR
+                    wstrb = 4'b1111;
+                    A32 = AXI_ADDR32_SPI_FLASH_BASE + 32'h40 + 0; // SRR+0,SRR+1,SRR+2,SRR+3
+                    D32 = 32'h0000_000a;
+                    addr_type = ADDR_TYPE_AXI;
+                end
+                8'd13: begin     // CR
+                    wstrb = 4'b1111;
+                    A32 = AXI_ADDR32_SPI_FLASH_BASE + 32'h60 + 0; // CR+0, CR+1
+                    D32 = {24'd0, D[7:0]};
+                    addr_type = ADDR_TYPE_AXI;
+                end
+                8'd14: begin    // DTR
+                    wstrb = 4'b0001;
+                    A32 = AXI_ADDR32_SPI_FLASH_BASE + 32'h68 + 0; // DTR+0
+                    D32 = {24'd0, D[7:0]};
+                    addr_type = ADDR_TYPE_AXI;
+                end
+                8'd15: begin    // SSR
+                    wstrb = 4'b0001;
+                    A32 = AXI_ADDR32_SPI_FLASH_BASE + 32'h70 + 0; // SSR+0
+                    D32 = {24'd0, D[7:0]};
+                    addr_type = ADDR_TYPE_AXI;
+                end
+
 
 
                 default: begin

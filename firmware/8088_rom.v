@@ -1,6 +1,6 @@
 module z80_rom
   #(
-    parameter integer ADDR_WIDTH=4,
+    parameter integer ADDR_WIDTH=8,
     parameter integer ROM_SIZE=1<<ADDR_WIDTH
     )
     (
