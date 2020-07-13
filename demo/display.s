@@ -81,12 +81,12 @@ horiz:
 	call	disp_alphabet
 	pop	dx
 	inc	dl
-	cmp	dl, 'R'
+	cmp	dl, 'S'
 	jnz	horiz
 
 	inc	ch
 
-	cmp	ch, 7
+	cmp	ch, 8
 	jne	vert
 
 
@@ -95,7 +95,16 @@ horiz:
 loop:
 	out	(128), al
 	inc	al
-	mov	cx, 0x1000
+	mov	cx, 0x100
+
+	push	ax
+	spi_send 0xd3
+	pop	ax
+	
+	push	ax
+	and	al, 0x7
+	call	spi_out
+	pop	ax
 
 ;	push	ax
 ;	test	al, 1

@@ -18,12 +18,12 @@
    </db_ref_list>
    <zoom_setting>
       <ZoomStartTime time="0fs"></ZoomStartTime>
-      <ZoomEndTime time="48093584908fs"></ZoomEndTime>
-      <Cursor1Time time="8311000000fs"></Cursor1Time>
+      <ZoomEndTime time="132000000001fs"></ZoomEndTime>
+      <Cursor1Time time="24968270899fs"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="219"></NameColumnWidth>
-      <ValueColumnWidth column_width="70"></ValueColumnWidth>
+      <ValueColumnWidth column_width="66"></ValueColumnWidth>
    </column_width_setting>
    <WVObjectSize size="31" />
    <wvobject type="array" fp_name="/top_sim/top/AXI_araddr33">
