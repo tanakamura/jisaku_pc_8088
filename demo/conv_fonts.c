@@ -66,6 +66,9 @@ int main()
     }
 
     FILE *out = fopen("fonts.asm", "wb");
+    FILE *c_out = fopen("cfonts.c", "wb");
+
+    fprintf(c_out, "const unsigned char alphabet_font[] = {\n");
 
     for (int i=0; i<26; i++) {
         fprintf(out, "alphabet_%c db ", 'A' + i);
@@ -78,9 +81,13 @@ int main()
             }
 
             fprintf(out, "0x%02x, ", byte);
+            fprintf(c_out, "0x%02x, ", byte);
         }
         fprintf(out, "\n");
+        fprintf(c_out, "\n");
     }
+
+    fprintf(c_out, "};\nconst unsigned char number_font[] = {\n");
 
     for (int i=0; i<10; i++) {
         fprintf(out, "number_%c db ", '0' + i);
@@ -93,8 +100,10 @@ int main()
             }
 
             fprintf(out, "0x%02x, ", byte);
+            fprintf(c_out, "0x%02x, ", byte);
         }
         fprintf(out, "\n");
     }
+    fprintf(c_out, "};\n");
     
 }

@@ -1,2 +1,9 @@
 *.bin
 *.lst
+*.err
+*.exe
+*.com
+*.map
+*.sym
+conv_fonts
+pack_file
