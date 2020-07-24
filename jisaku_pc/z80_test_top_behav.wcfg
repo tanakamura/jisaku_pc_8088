@@ -18,122 +18,14 @@
    </db_ref_list>
    <zoom_setting>
       <ZoomStartTime time="0fs"></ZoomStartTime>
-      <ZoomEndTime time="132000000001fs"></ZoomEndTime>
-      <Cursor1Time time="24968270899fs"></Cursor1Time>
+      <ZoomEndTime time="132600000001fs"></ZoomEndTime>
+      <Cursor1Time time="42739000000fs"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="219"></NameColumnWidth>
-      <ValueColumnWidth column_width="66"></ValueColumnWidth>
+      <ValueColumnWidth column_width="62"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="31" />
-   <wvobject type="array" fp_name="/top_sim/top/AXI_araddr33">
-      <obj_property name="ElementShortName">AXI_araddr33[32:0]</obj_property>
-      <obj_property name="ObjectShortName">AXI_araddr33[32:0]</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/top_sim/top/AXI_arprot">
-      <obj_property name="ElementShortName">AXI_arprot[2:0]</obj_property>
-      <obj_property name="ObjectShortName">AXI_arprot[2:0]</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/top_sim/top/AXI_arready">
-      <obj_property name="ElementShortName">AXI_arready</obj_property>
-      <obj_property name="ObjectShortName">AXI_arready</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/top_sim/top/AXI_arvalid">
-      <obj_property name="ElementShortName">AXI_arvalid</obj_property>
-      <obj_property name="ObjectShortName">AXI_arvalid</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/top_sim/top/AXI_awaddr33">
-      <obj_property name="ElementShortName">AXI_awaddr33[32:0]</obj_property>
-      <obj_property name="ObjectShortName">AXI_awaddr33[32:0]</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/top_sim/top/AXI_awprot">
-      <obj_property name="ElementShortName">AXI_awprot[2:0]</obj_property>
-      <obj_property name="ObjectShortName">AXI_awprot[2:0]</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/top_sim/top/AXI_awready">
-      <obj_property name="ElementShortName">AXI_awready</obj_property>
-      <obj_property name="ObjectShortName">AXI_awready</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/top_sim/top/AXI_awvalid">
-      <obj_property name="ElementShortName">AXI_awvalid</obj_property>
-      <obj_property name="ObjectShortName">AXI_awvalid</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/top_sim/top/AXI_bready">
-      <obj_property name="ElementShortName">AXI_bready</obj_property>
-      <obj_property name="ObjectShortName">AXI_bready</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/top_sim/top/AXI_bresp">
-      <obj_property name="ElementShortName">AXI_bresp[1:0]</obj_property>
-      <obj_property name="ObjectShortName">AXI_bresp[1:0]</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/top_sim/top/AXI_bvalid">
-      <obj_property name="ElementShortName">AXI_bvalid</obj_property>
-      <obj_property name="ObjectShortName">AXI_bvalid</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/top_sim/top/AXI_rdata">
-      <obj_property name="ElementShortName">AXI_rdata[31:0]</obj_property>
-      <obj_property name="ObjectShortName">AXI_rdata[31:0]</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/top_sim/top/AXI_rready">
-      <obj_property name="ElementShortName">AXI_rready</obj_property>
-      <obj_property name="ObjectShortName">AXI_rready</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/top_sim/top/AXI_rresp">
-      <obj_property name="ElementShortName">AXI_rresp[1:0]</obj_property>
-      <obj_property name="ObjectShortName">AXI_rresp[1:0]</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/top_sim/top/AXI_rvalid">
-      <obj_property name="ElementShortName">AXI_rvalid</obj_property>
-      <obj_property name="ObjectShortName">AXI_rvalid</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/top_sim/top/AXI_wdata">
-      <obj_property name="ElementShortName">AXI_wdata[31:0]</obj_property>
-      <obj_property name="ObjectShortName">AXI_wdata[31:0]</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/top_sim/top/AXI_wready">
-      <obj_property name="ElementShortName">AXI_wready</obj_property>
-      <obj_property name="ObjectShortName">AXI_wready</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/top_sim/top/AXI_wstrb">
-      <obj_property name="ElementShortName">AXI_wstrb[3:0]</obj_property>
-      <obj_property name="ObjectShortName">AXI_wstrb[3:0]</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/top_sim/top/AXI_wvalid">
-      <obj_property name="ElementShortName">AXI_wvalid</obj_property>
-      <obj_property name="ObjectShortName">AXI_wvalid</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/top_sim/top/READY">
-      <obj_property name="ElementShortName">READY</obj_property>
-      <obj_property name="ObjectShortName">READY</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/top_sim/top/CPU_CLK">
-      <obj_property name="ElementShortName">CPU_CLK</obj_property>
-      <obj_property name="ObjectShortName">CPU_CLK</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/top_sim/top/spi_clk">
-      <obj_property name="ElementShortName">spi_clk</obj_property>
-      <obj_property name="ObjectShortName">spi_clk</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/top_sim/top/spi_io0_io">
-      <obj_property name="ElementShortName">spi_io0_io</obj_property>
-      <obj_property name="ObjectShortName">spi_io0_io</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/top_sim/top/spi_io1_io">
-      <obj_property name="ElementShortName">spi_io1_io</obj_property>
-      <obj_property name="ObjectShortName">spi_io1_io</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/top_sim/top/spi_sck_io">
-      <obj_property name="ElementShortName">spi_sck_io</obj_property>
-      <obj_property name="ObjectShortName">spi_sck_io</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/top_sim/top/spi_ss_io">
-      <obj_property name="ElementShortName">spi_ss_io</obj_property>
-      <obj_property name="ObjectShortName">spi_ss_io</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/top_sim/ck_io4">
-      <obj_property name="ElementShortName">ck_io4</obj_property>
-      <obj_property name="ObjectShortName">ck_io4</obj_property>
-   </wvobject>
+   <WVObjectSize size="34" />
    <wvobject type="logic" fp_name="/top_sim/ck_io3">
       <obj_property name="ElementShortName">ck_io3</obj_property>
       <obj_property name="ObjectShortName">ck_io3</obj_property>
@@ -142,12 +34,133 @@
       <obj_property name="ElementShortName">ck_io2</obj_property>
       <obj_property name="ObjectShortName">ck_io2</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/top_sim/ck_io1">
-      <obj_property name="ElementShortName">ck_io1</obj_property>
-      <obj_property name="ObjectShortName">ck_io1</obj_property>
+   <wvobject type="logic" fp_name="/top_sim/top/cpu/ps2_keyboard/rstn">
+      <obj_property name="ElementShortName">rstn</obj_property>
+      <obj_property name="ObjectShortName">rstn</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/top_sim/ck_io0">
-      <obj_property name="ElementShortName">ck_io0</obj_property>
-      <obj_property name="ObjectShortName">ck_io0</obj_property>
+   <wvobject type="logic" fp_name="/top_sim/top/cpu/ps2_keyboard/clk">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top_sim/top/cpu/ps2_keyboard/data">
+      <obj_property name="ElementShortName">data</obj_property>
+      <obj_property name="ObjectShortName">data</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top_sim/top/cpu/ps2_keyboard/busclk">
+      <obj_property name="ElementShortName">busclk</obj_property>
+      <obj_property name="ObjectShortName">busclk</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top_sim/top/cpu/ps2_keyboard/pop">
+      <obj_property name="ElementShortName">pop</obj_property>
+      <obj_property name="ObjectShortName">pop</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top_sim/top/cpu/ps2_keyboard/fifo_top">
+      <obj_property name="ElementShortName">fifo_top[7:0]</obj_property>
+      <obj_property name="ObjectShortName">fifo_top[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top_sim/top/cpu/ps2_keyboard/rx_empty">
+      <obj_property name="ElementShortName">rx_empty</obj_property>
+      <obj_property name="ObjectShortName">rx_empty</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top_sim/top/cpu/ps2_keyboard/frame_error">
+      <obj_property name="ElementShortName">frame_error</obj_property>
+      <obj_property name="ObjectShortName">frame_error</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top_sim/top/cpu/ps2_keyboard/parity_error">
+      <obj_property name="ElementShortName">parity_error</obj_property>
+      <obj_property name="ObjectShortName">parity_error</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top_sim/top/cpu/ps2_keyboard/rx_overflow">
+      <obj_property name="ElementShortName">rx_overflow</obj_property>
+      <obj_property name="ObjectShortName">rx_overflow</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top_sim/top/cpu/ps2_keyboard/current">
+      <obj_property name="ElementShortName">current[6:0]</obj_property>
+      <obj_property name="ObjectShortName">current[6:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top_sim/top/cpu/ps2_keyboard/pos">
+      <obj_property name="ElementShortName">pos[3:0]</obj_property>
+      <obj_property name="ObjectShortName">pos[3:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top_sim/top/cpu/ps2_keyboard/fifo">
+      <obj_property name="ElementShortName">fifo[0:15][7:0]</obj_property>
+      <obj_property name="ObjectShortName">fifo[0:15][7:0]</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top_sim/top/cpu/ps2_keyboard/r_fifo_head_ps2clk">
+      <obj_property name="ElementShortName">r_fifo_head_ps2clk[3:0]</obj_property>
+      <obj_property name="ObjectShortName">r_fifo_head_ps2clk[3:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top_sim/top/cpu/ps2_keyboard/r_fifo_head_buf_ps2clk">
+      <obj_property name="ElementShortName">r_fifo_head_buf_ps2clk[3:0]</obj_property>
+      <obj_property name="ObjectShortName">r_fifo_head_buf_ps2clk[3:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top_sim/top/cpu/ps2_keyboard/r_fifo_tail_ps2clk">
+      <obj_property name="ElementShortName">r_fifo_tail_ps2clk[3:0]</obj_property>
+      <obj_property name="ObjectShortName">r_fifo_tail_ps2clk[3:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top_sim/top/cpu/ps2_keyboard/r_fifo_tail_busclk">
+      <obj_property name="ElementShortName">r_fifo_tail_busclk[3:0]</obj_property>
+      <obj_property name="ObjectShortName">r_fifo_tail_busclk[3:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top_sim/top/cpu/ps2_keyboard/r_fifo_tail_buf_busclk">
+      <obj_property name="ElementShortName">r_fifo_tail_buf_busclk[3:0]</obj_property>
+      <obj_property name="ObjectShortName">r_fifo_tail_buf_busclk[3:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top_sim/top/cpu/ps2_keyboard/r_fifo_head_busclk">
+      <obj_property name="ElementShortName">r_fifo_head_busclk[3:0]</obj_property>
+      <obj_property name="ObjectShortName">r_fifo_head_busclk[3:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top_sim/top/cpu/ps2_keyboard/parity">
+      <obj_property name="ElementShortName">parity</obj_property>
+      <obj_property name="ObjectShortName">parity</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top_sim/top/cpu/ps2_keyboard/r_frame_error">
+      <obj_property name="ElementShortName">r_frame_error</obj_property>
+      <obj_property name="ObjectShortName">r_frame_error</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top_sim/top/cpu/ps2_keyboard/r_parity_error">
+      <obj_property name="ElementShortName">r_parity_error</obj_property>
+      <obj_property name="ObjectShortName">r_parity_error</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top_sim/top/cpu/ps2_keyboard/r_rx_overflow">
+      <obj_property name="ElementShortName">r_rx_overflow</obj_property>
+      <obj_property name="ObjectShortName">r_rx_overflow</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top_sim/top/cpu/ps2_keyboard/head_ps2clk_match">
+      <obj_property name="ElementShortName">head_ps2clk_match</obj_property>
+      <obj_property name="ObjectShortName">head_ps2clk_match</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top_sim/top/cpu/ps2_keyboard/tail_busclk_match">
+      <obj_property name="ElementShortName">tail_busclk_match</obj_property>
+      <obj_property name="ObjectShortName">tail_busclk_match</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top_sim/top/cpu/ps2_keyboard/fifo_head_busclk">
+      <obj_property name="ElementShortName">fifo_head_busclk[3:0]</obj_property>
+      <obj_property name="ObjectShortName">fifo_head_busclk[3:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top_sim/top/cpu/ps2_keyboard/fifo_tail_ps2clk">
+      <obj_property name="ElementShortName">fifo_tail_ps2clk[3:0]</obj_property>
+      <obj_property name="ObjectShortName">fifo_tail_ps2clk[3:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top_sim/top/cpu/ps2_keyboard/clk_or_rst">
+      <obj_property name="ElementShortName">clk_or_rst</obj_property>
+      <obj_property name="ObjectShortName">clk_or_rst</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top_sim/top/cpu/ps2_keyboard/next_head">
+      <obj_property name="ElementShortName">next_head[3:0]</obj_property>
+      <obj_property name="ObjectShortName">next_head[3:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top_sim/top/cpu/ps2_keyboard/FIFO_DEPTH_BITS">
+      <obj_property name="ElementShortName">FIFO_DEPTH_BITS[31:0]</obj_property>
+      <obj_property name="ObjectShortName">FIFO_DEPTH_BITS[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top_sim/top/ps2_clk">
+      <obj_property name="ElementShortName">ps2_clk</obj_property>
+      <obj_property name="ObjectShortName">ps2_clk</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top_sim/top/ck_io2">
+      <obj_property name="ElementShortName">ck_io2</obj_property>
+      <obj_property name="ObjectShortName">ck_io2</obj_property>
    </wvobject>
 </wave_config>

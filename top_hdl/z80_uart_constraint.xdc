@@ -6,11 +6,15 @@ create_clock -period 48.000 -name spi_clk -waveform {0.000 24.000} -add [get_net
 
 ## Clock signal
 set_property -dict {PACKAGE_PIN E3 IOSTANDARD LVCMOS33} [get_ports CLK100MHZ]
+#set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets ck_io2_IBUF]
+
 create_clock -period 10.000 -name sys_clk_pin -waveform {0.000 5.000} -add [get_ports CLK100MHZ]
+create_clock -period 100000.000 -name ps2_clk_pin -waveform {0.000 50000.000} -add [get_ports ck_io2]
 
 create_clock -period 180.000 -name cpu_clk -waveform {0.000 60.000} -add [get_nets ck_io6_OBUF_BUFG]
 
-set_clock_groups -asynchronous -group [get_clocks sys_clk_pin]
+#set_clock_groups -asynchronous -group [get_clocks sys_clk_pin]
+
 
 ## Switches
 #set_property -dict { PACKAGE_PIN A8    IOSTANDARD LVCMOS33 } [get_ports { sw[0] }]; #IO_L12N_T1_MRCC_16 Sch=sw[0]

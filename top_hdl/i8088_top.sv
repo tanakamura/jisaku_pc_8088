@@ -41,8 +41,8 @@ module jisaku_pc_top(
                      output wire ck_io5, // RESET
                      
                      output wire ck_io4, // GPIO4
-                     output wire ck_io3, // GPIO3
-                     output wire ck_io2, // GPIO2
+                     input wire ck_io3, // ps2 data
+                     input wire ck_io2, // ps2 clk
                      output wire ck_io1, // GPIO1
                      output wire ck_io0, // GPIO0
 
@@ -156,7 +156,7 @@ module jisaku_pc_top(
 
     reg [1:0] div_cnt_25mhz;    // 41.666
     reg [4:0] div15_counter;
-    reg [4:0] reset_counter;
+    reg [8:0] reset_counter;
 
     wire clk_25mhz_logic;
     assign clk_25mhz_logic = div_cnt_25mhz[1];
@@ -232,13 +232,13 @@ module jisaku_pc_top(
         if (CPU_RESET) begin
             reset_counter <= 0;
         end else begin
-            if (reset_counter != 5'b11111) begin
+            if (reset_counter != 8'b1111_1111) begin
                 reset_counter <= reset_counter + 1;
             end
         end
     end
 
-    assign CPU_RESET_32 = reset_counter != 5'b11111;
+    assign CPU_RESET_32 = reset_counter != 8'b1111_1111;
 
     wire INTR;
     wire NMI;
@@ -262,7 +262,10 @@ module jisaku_pc_top(
     end
 
     wire [4:0] gpio;
-    assign {ck_io4,ck_io3,ck_io2,ck_io1,ck_io0} = gpio[4:0];
+    assign {ck_io1,ck_io0} = gpio[1:0];
+
+    wire ps2_data = ck_io3;
+    wire ps2_clk = ck_io2;
 
     i8088_cpu cpu(.*,           // AXI
                   .PUSH_BUTTON(btn),
@@ -285,7 +288,12 @@ module jisaku_pc_top(
                   .INTR_cpu(INTR),
                   .NMI_cpu(NMI),
                   .READY_cpu(READY),
-                  .dbus_DIR(bus_DIR));
+                  .dbus_DIR(bus_DIR),
+
+                  .ps2_clk(ps2_clk),
+                  .ps2_data(ps2_data)
+
+);
 
 endmodule
 

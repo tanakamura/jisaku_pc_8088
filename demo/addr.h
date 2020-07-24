@@ -23,3 +23,6 @@
 #define GPIO0		129
 #define LED		128
 #define BUTTON		128
+#define PS2_STATE       129
+#define PS2_RX          130
+#define PS2_RESET       130

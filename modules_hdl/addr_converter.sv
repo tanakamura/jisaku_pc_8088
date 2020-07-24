@@ -30,7 +30,7 @@ module mem_addr_converter
                             addr_type = ADDR_TYPE_INTERNAL_ROM;
                         end
 
-                      0'b0001:
+                      4'b0001:
                         begin
                             A32 = {20'd0, A[11:0]};
                             addr_type = ADDR_TYPE_INTERNAL_RAM;
@@ -95,61 +95,60 @@ module addr_converter
                 wstrb = 0;
                 D32 = 0;
 
-                case (A[7:0])
-                  8'd0: begin
-                      addr_type = ADDR_TYPE_AXI;
-                      A32 = AXI_ADDR32_UART_RX;
-                  end
-                  8'd2: begin 
-                      addr_type = ADDR_TYPE_AXI;
-                      A32 = AXI_ADDR32_UART_STAT;
-                  end
+                if (A[7:7] == 1) begin
+                    addr_type = ADDR_TYPE_INTERNAL_PERIPHERAL;
+                    A32 = 0;
+                end else begin
+                    case (A[6:0])
+                      7'd0: begin
+                          addr_type = ADDR_TYPE_AXI;
+                          A32 = AXI_ADDR32_UART_RX;
+                      end
+                      7'd2: begin 
+                          addr_type = ADDR_TYPE_AXI;
+                          A32 = AXI_ADDR32_UART_STAT;
+                      end
 
-                  8'd8: begin
-                      addr_type = ADDR_TYPE_AXI;
-                      A32 = AXI_ADDR32_SPI_BASE + 32'h64 + 0; // SR
-                  end
-                  8'd9: begin
-                      addr_type = ADDR_TYPE_AXI;
-                      A32 = AXI_ADDR32_SPI_BASE + 32'h64 + 1; // SR + 1
-                  end
-                  8'd10: begin
-                      addr_type = ADDR_TYPE_AXI;
-                      A32 = AXI_ADDR32_SPI_BASE + 32'h6C; // DRR
-                  end
-                  8'd11: begin
-                      addr_type = ADDR_TYPE_AXI;
-                      A32 = AXI_ADDR32_SPI_BASE + 32'h70; // SSR
-                  end
+                      7'd8: begin
+                          addr_type = ADDR_TYPE_AXI;
+                          A32 = AXI_ADDR32_SPI_BASE + 32'h64 + 0; // SR
+                      end
+                      7'd9: begin
+                          addr_type = ADDR_TYPE_AXI;
+                          A32 = AXI_ADDR32_SPI_BASE + 32'h64 + 1; // SR + 1
+                      end
+                      7'd10: begin
+                          addr_type = ADDR_TYPE_AXI;
+                          A32 = AXI_ADDR32_SPI_BASE + 32'h6C; // DRR
+                      end
+                      7'd11: begin
+                          addr_type = ADDR_TYPE_AXI;
+                          A32 = AXI_ADDR32_SPI_BASE + 32'h70; // SSR
+                      end
 
-                  8'd12: begin
-                      addr_type = ADDR_TYPE_AXI;
-                      A32 = AXI_ADDR32_SPI_FLASH_BASE + 32'h64 + 0; // SR
-                  end
-                  8'd13: begin
-                      addr_type = ADDR_TYPE_AXI;
-                      A32 = AXI_ADDR32_SPI_FLASH_BASE + 32'h64 + 1; // SR + 1
-                  end
-                  8'd14: begin
-                      addr_type = ADDR_TYPE_AXI;
-                      A32 = AXI_ADDR32_SPI_FLASH_BASE + 32'h6C; // DRR
-                  end
-                  8'd15: begin
-                      addr_type = ADDR_TYPE_AXI;
-                      A32 = AXI_ADDR32_SPI_FLASH_BASE + 32'h70; // SSR
-                  end
+                      7'd12: begin
+                          addr_type = ADDR_TYPE_AXI;
+                          A32 = AXI_ADDR32_SPI_FLASH_BASE + 32'h64 + 0; // SR
+                      end
+                      7'd13: begin
+                          addr_type = ADDR_TYPE_AXI;
+                          A32 = AXI_ADDR32_SPI_FLASH_BASE + 32'h64 + 1; // SR + 1
+                      end
+                      7'd14: begin
+                          addr_type = ADDR_TYPE_AXI;
+                          A32 = AXI_ADDR32_SPI_FLASH_BASE + 32'h6C; // DRR
+                      end
+                      7'd15: begin
+                          addr_type = ADDR_TYPE_AXI;
+                          A32 = AXI_ADDR32_SPI_FLASH_BASE + 32'h70; // SSR
+                      end
 
-
-                  8'd128: begin
-                      addr_type = ADDR_TYPE_INTERNAL_BUTTON;
-                      A32 = 0;
-                  end
-
-                  default: begin
-                      addr_type = ADDR_TYPE_UNKNOWN;
-                      A32 = 0;
-                  end
-                endcase
+                      default: begin
+                          addr_type = ADDR_TYPE_UNKNOWN;
+                          A32 = 0;
+                      end
+                    endcase
+                end
             end
 
           4'b0110:
@@ -167,87 +166,78 @@ module addr_converter
               // io write
               is_read = 0;
 
-              case (A[7:0])
-                8'd1: begin
-                    wstrb = 1;
-                    A32 = AXI_ADDR32_UART_TX;
-                    D32 = {24'd0, D[7:0]};
-                    addr_type = ADDR_TYPE_AXI;
-                end
+              if (A[7:7] == 1) begin
+                  wstrb = 0;
+                  A32 = 0;
+                  D32 = 32'd0;
+                  addr_type = ADDR_TYPE_INTERNAL_PERIPHERAL;
+              end else begin
+                  case (A[6:0])
+                    7'd1: begin
+                        wstrb = 1;
+                        A32 = AXI_ADDR32_UART_TX;
+                        D32 = {24'd0, D[7:0]};
+                        addr_type = ADDR_TYPE_AXI;
+                    end
 
-                8'd128: begin
-                    wstrb = 0;
-                    A32 = 0;
-                    D32 = 32'd0;
-                    addr_type = ADDR_TYPE_INTERNAL_LED;
-                end
+                    7'd8: begin     // SRR
+                        wstrb = 4'b1111;
+                        A32 = AXI_ADDR32_SPI_BASE + 32'h40 + 0; // SRR+0,SRR+1,SRR+2,SRR+3
+                        D32 = 32'h0000_000a;
+                        addr_type = ADDR_TYPE_AXI;
+                    end
+                    7'd9: begin     // CR
+                        wstrb = 4'b1111;
+                        A32 = AXI_ADDR32_SPI_BASE + 32'h60 + 0; // CR+0, CR+1
+                        D32 = {24'd0, D[7:0]};
+                        addr_type = ADDR_TYPE_AXI;
+                    end
+                    7'd10: begin    // DTR
+                        wstrb = 4'b0001;
+                        A32 = AXI_ADDR32_SPI_BASE + 32'h68 + 0; // DTR+0
+                        D32 = {24'd0, D[7:0]};
+                        addr_type = ADDR_TYPE_AXI;
+                    end
+                    7'd11: begin    // SSR
+                        wstrb = 4'b0001;
+                        A32 = AXI_ADDR32_SPI_BASE + 32'h70 + 0; // SSR+0
+                        D32 = {24'd0, D[7:0]};
+                        addr_type = ADDR_TYPE_AXI;
+                    end
 
-                8'd129: begin
-                    wstrb = 0;
-                    A32 = 0;
-                    D32 = 32'd0;
-                    addr_type = ADDR_TYPE_INTERNAL_GPIO;
-                end
+                    7'd12: begin     // SRR
+                        wstrb = 4'b1111;
+                        A32 = AXI_ADDR32_SPI_FLASH_BASE + 32'h40 + 0; // SRR+0,SRR+1,SRR+2,SRR+3
+                        D32 = 32'h0000_000a;
+                        addr_type = ADDR_TYPE_AXI;
+                    end
+                    7'd13: begin     // CR
+                        wstrb = 4'b1111;
+                        A32 = AXI_ADDR32_SPI_FLASH_BASE + 32'h60 + 0; // CR+0, CR+1
+                        D32 = {24'd0, D[7:0]};
+                        addr_type = ADDR_TYPE_AXI;
+                    end
+                    7'd14: begin    // DTR
+                        wstrb = 4'b0001;
+                        A32 = AXI_ADDR32_SPI_FLASH_BASE + 32'h68 + 0; // DTR+0
+                        D32 = {24'd0, D[7:0]};
+                        addr_type = ADDR_TYPE_AXI;
+                    end
+                    7'd15: begin    // SSR
+                        wstrb = 4'b0001;
+                        A32 = AXI_ADDR32_SPI_FLASH_BASE + 32'h70 + 0; // SSR+0
+                        D32 = {24'd0, D[7:0]};
+                        addr_type = ADDR_TYPE_AXI;
+                    end
 
-                8'd8: begin     // SRR
-                    wstrb = 4'b1111;
-                    A32 = AXI_ADDR32_SPI_BASE + 32'h40 + 0; // SRR+0,SRR+1,SRR+2,SRR+3
-                    D32 = 32'h0000_000a;
-                    addr_type = ADDR_TYPE_AXI;
-                end
-                8'd9: begin     // CR
-                    wstrb = 4'b1111;
-                    A32 = AXI_ADDR32_SPI_BASE + 32'h60 + 0; // CR+0, CR+1
-                    D32 = {24'd0, D[7:0]};
-                    addr_type = ADDR_TYPE_AXI;
-                end
-                8'd10: begin    // DTR
-                    wstrb = 4'b0001;
-                    A32 = AXI_ADDR32_SPI_BASE + 32'h68 + 0; // DTR+0
-                    D32 = {24'd0, D[7:0]};
-                    addr_type = ADDR_TYPE_AXI;
-                end
-                8'd11: begin    // SSR
-                    wstrb = 4'b0001;
-                    A32 = AXI_ADDR32_SPI_BASE + 32'h70 + 0; // SSR+0
-                    D32 = {24'd0, D[7:0]};
-                    addr_type = ADDR_TYPE_AXI;
-                end
-
-                8'd12: begin     // SRR
-                    wstrb = 4'b1111;
-                    A32 = AXI_ADDR32_SPI_FLASH_BASE + 32'h40 + 0; // SRR+0,SRR+1,SRR+2,SRR+3
-                    D32 = 32'h0000_000a;
-                    addr_type = ADDR_TYPE_AXI;
-                end
-                8'd13: begin     // CR
-                    wstrb = 4'b1111;
-                    A32 = AXI_ADDR32_SPI_FLASH_BASE + 32'h60 + 0; // CR+0, CR+1
-                    D32 = {24'd0, D[7:0]};
-                    addr_type = ADDR_TYPE_AXI;
-                end
-                8'd14: begin    // DTR
-                    wstrb = 4'b0001;
-                    A32 = AXI_ADDR32_SPI_FLASH_BASE + 32'h68 + 0; // DTR+0
-                    D32 = {24'd0, D[7:0]};
-                    addr_type = ADDR_TYPE_AXI;
-                end
-                8'd15: begin    // SSR
-                    wstrb = 4'b0001;
-                    A32 = AXI_ADDR32_SPI_FLASH_BASE + 32'h70 + 0; // SSR+0
-                    D32 = {24'd0, D[7:0]};
-                    addr_type = ADDR_TYPE_AXI;
-                end
-
-
-
-                default: begin
-                    wstrb = 1;
-                    A32 = 0;
-                    D32 = 0;
-                    addr_type = ADDR_TYPE_UNKNOWN;
-                end
-              endcase
+                    default: begin
+                        wstrb = 0;
+                        A32 = 0;
+                        D32 = 0;
+                        addr_type = ADDR_TYPE_UNKNOWN;
+                    end
+                  endcase
+              end
           end
 
           4'b0101:  begin

@@ -161,6 +161,7 @@ void cmain()
        if (st & 1) {
            unsigned char data = inp(UART_RX);
            disp_char(data);
+           output_char(data);
        }
    }
 

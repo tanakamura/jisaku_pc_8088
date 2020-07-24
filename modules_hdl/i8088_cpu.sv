@@ -2,6 +2,11 @@
 `default_nettype none
 
 module i8088_cpu
+  #(
+    integer FIFO_DEPTH_BITS = 4
+    )
+
+
     (output wire [32:0] AXI_araddr33,
      output wire [2:0] AXI_arprot,
      input wire AXI_arready,
@@ -32,6 +37,9 @@ module i8088_cpu
      output wire [3:0] LED,
      output wire [4:0] GPIO,
      input wire [3:0] PUSH_BUTTON,
+
+     input wire ps2_clk,
+     input wire ps2_data,
 
      input wire RESETN,
 
@@ -195,8 +203,10 @@ module i8088_cpu
 
     wire READY_busclk = (! axi_busy);
 
+    reg r_key_pop_cnt;
+    reg [1:0] r_key_rst_cnt;
     reg r_READY_cpu;
-    assign READY_cpu = (r_READY_cpu & READY_busclk);
+    assign READY_cpu = (r_READY_cpu & READY_busclk & (r_key_pop_cnt == 1'd0) & (r_key_rst_cnt == 2'd0));
 
     always @(posedge I8088_CLK) begin
         if (!RESETN) begin
@@ -215,13 +225,44 @@ module i8088_cpu
         ram_data = ram[A32_busclk[15:0]];
     end
 
+    wire [7:0] kbd_fifo_top;
+    wire kbd_rx_empty;
+    wire kbd_frame_error;
+    wire kbd_parity_error;
+    wire kbd_rx_overflow;
+
+    //ps2_keyboard ps2_keyboard(.rstn(RESETN),// & (r_key_rst_cnt == 0)),
+    //                          .ps2_clk(ps2_clk),
+    //                          .ps2_data(ps2_data),
+    //
+    //                          .busclk(AXI_CLK),
+    //                          .pop(r_key_pop_cnt),
+    //                          .fifo_top(kbd_fifo_top),
+    //
+    //                          .rx_empty(kbd_rx_empty),
+    //                          .frame_error(kbd_frame_error),
+    //                          .parity_error(kbd_parity_error),
+    //                          .rx_overflow(kbd_rx_overflow)
+    //                          );
+
     always_comb begin
         if (addr_type_busclk == ADDR_TYPE_INTERNAL_ROM) begin
             D_to_cpu_from_internal = rom_data;
         end else if (addr_type_busclk == ADDR_TYPE_INTERNAL_RAM) begin
             D_to_cpu_from_internal = ram_data;
-        end else if (addr_type_busclk == ADDR_TYPE_INTERNAL_BUTTON) begin
-            D_to_cpu_from_internal = {4'd0, PUSH_BUTTON};
+        end else if (addr_type_busclk == ADDR_TYPE_INTERNAL_PERIPHERAL) begin
+            case (A_busclk[7:0])
+              8'd128: D_to_cpu_from_internal = {4'd0, PUSH_BUTTON}; // button
+              8'd129: D_to_cpu_from_internal = {4'd0, // keyboard status
+                                                kbd_frame_error,
+                                                kbd_parity_error,
+                                                kbd_rx_overflow,
+                                                kbd_rx_empty};
+              8'd130: begin 
+                  D_to_cpu_from_internal = kbd_fifo_top;
+              end
+              default: D_to_cpu_from_internal = 8'd0;
+            endcase
         end else begin
             D_to_cpu_from_internal = 0;
         end
@@ -233,6 +274,31 @@ module i8088_cpu
     assign INTR_cpu = 0;
     assign NMI_cpu = 0;
 
+
+    reg [6:0] current;
+    reg [3:0] pos;
+    reg [7:0] fifo [0:(1<<FIFO_DEPTH_BITS)-1];
+    reg [FIFO_DEPTH_BITS-1:0] r_fifo_head;
+    reg [FIFO_DEPTH_BITS-1:0] r_fifo_tail;
+    reg [7:0] r_fifo_top;
+
+    reg parity;
+    reg r_frame_error;
+    reg r_parity_error;
+    reg r_rx_overflow;
+
+    // output
+    assign kbd_frame_error = r_frame_error;
+    assign kbd_parity_error = r_parity_error;
+    assign kbd_rx_overflow = r_rx_overflow;
+    assign kbd_rx_empty = (r_fifo_head == r_fifo_tail);
+    assign kbd_fifo_top = r_fifo_top;
+
+    wire [FIFO_DEPTH_BITS-1:0] next_head = r_fifo_head + 1;
+    wire rx_full = (next_head == r_fifo_tail);
+
+    reg r_clk_prev;
+
     always @(posedge AXI_CLK) begin
         if (!RESETN) begin
             LED_reg <= 0;
@@ -242,12 +308,35 @@ module i8088_cpu
             rdaddr_fetch <= 0;
             nwr_prev <= 1;
             nrd_prev <= 1;
+            r_key_pop_cnt <= 0;
+            r_key_rst_cnt <= 0;
+
+            /* kbd */
+            pos <= 4'd0;
+            current <= 7'd0;
+            r_frame_error <= 0;
+            r_parity_error <= 0;
+            r_rx_overflow <= 0;
+            r_fifo_head <= 0;
+            r_fifo_tail <= 0;
+            r_fifo_top <= 0;
+            r_clk_prev <= 1;
         end else begin
             if (rdaddr_fetch) begin
                 rdaddr_fetch <= 0;
             end else begin
                 if (nrd_prev == 1 && nRD_busclk == 0) begin
                     rdaddr_fetch <= 1;
+
+                    if (addr_type_busclk == ADDR_TYPE_INTERNAL_PERIPHERAL) begin
+                        case (A_busclk[7:0]) 
+                          8'd130: begin
+                              r_key_pop_cnt <= 1;
+                          end
+
+                          default: ;
+                        endcase
+                    end
                 end
             end
 
@@ -269,12 +358,13 @@ module i8088_cpu
                         ram[A32_busclk[15:0]] <= D_from_cpu_busclk;
                     end
 
-                    if (addr_type_busclk == ADDR_TYPE_INTERNAL_LED) begin
-                        LED_reg <= D_from_cpu_busclk[3:0];
-                    end
-
-                    if (addr_type_busclk == ADDR_TYPE_INTERNAL_GPIO) begin
-                        GPIO_reg <= D_from_cpu_busclk[4:0];
+                    if (addr_type_busclk == ADDR_TYPE_INTERNAL_PERIPHERAL) begin
+                        case (A_busclk[7:0])
+                          8'd128:LED_reg <= D_from_cpu_busclk[3:0];
+                          8'd129:GPIO_reg <= D_from_cpu_busclk[4:0];
+                          8'd130:r_key_rst_cnt <= 1;
+                          default: ;
+                        endcase 
                     end
                 end
             end
@@ -282,6 +372,15 @@ module i8088_cpu
             nrd_prev <= nRD_busclk;
             nwr_prev <= nWR_busclk;
 
+            if (r_key_pop_cnt == 1) begin
+                r_key_pop_cnt <= 0;
+            end
+
+            if (r_key_rst_cnt != 0) begin
+                r_key_rst_cnt <= r_key_rst_cnt + 1;
+            end
+
+            r_fifo_tail <= r_fifo_tail + 1;
         end
     end
 endmodule

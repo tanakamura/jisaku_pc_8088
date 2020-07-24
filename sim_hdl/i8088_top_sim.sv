@@ -76,8 +76,8 @@ module top_sim(
     wire ck_io5; // RESET
 
     wire ck_io4;                // GPIO
-    wire ck_io3;                // GPIO
-    wire ck_io2;                // GPIO
+    reg ck_io3;                // ps2 data
+    reg ck_io2;                // ps2 clk
     wire ck_io1;                // GPIO
     wire ck_io0;                // GPIO
 
@@ -177,6 +177,45 @@ module top_sim(
         wait_ready();
     endtask
 
+    task automatic recv_from_keyboard(integer val, integer start);
+        integer bitpos;
+        integer parity;
+
+        parity = 1;
+
+        repeat (32) @(posedge clk);
+
+        ck_io3 <= start;
+        ck_io2 <= 0;
+        repeat (32) @(posedge clk);
+        ck_io2 <= 1;
+        repeat (32) @(posedge clk);
+
+        for (bitpos=0; bitpos<8; bitpos+=1) begin
+            integer b = (val >> bitpos) & 1;
+            ck_io3 <= b;
+            ck_io2 <= 0;
+            parity = parity ^ b;
+            repeat (32) @(posedge clk);
+            ck_io2 <= 1;
+            repeat (32) @(posedge clk);
+        end
+
+        ck_io3 <= parity;
+        ck_io2 <= 0;
+        repeat (32) @(posedge clk);
+        ck_io2 <= 1;
+        repeat (32) @(posedge clk);
+
+
+        ck_io3 <= 1;
+        ck_io2 <= 0;
+        repeat (32) @(posedge clk);
+        ck_io2 <= 1;
+        repeat (32) @(posedge clk);
+
+    endtask
+
     initial begin
         nRD <= 1;
         nWR <= 1;
@@ -184,6 +223,9 @@ module top_sim(
         DT_nR <= 1;
         ALE <= 0;
         IO_nM <= 0;
+
+        ck_io2 <= 1;
+        ck_io3 <= 1;
 
         A20 <= 20'hffff0;
 
@@ -318,21 +360,39 @@ module top_sim(
 //
 //        $display("read DDR = %x\n", D_from_bus);
 
-        write_and_delay(20'd129, 1, 8'h2);
-        write_and_delay(20'd129, 1, 8'h1);
+//        write_and_delay(20'd129, 1, 8'h2);
+//        write_and_delay(20'd129, 1, 8'h1);
+//
+//        write_and_wait(20'd8, 1, 0);
+//        $display("write SRR\n");
+//        write_and_wait(20'd9, 1, 8'h6);
+//        $display("write CR\n");
+//
+//        write_and_wait(20'd10, 1, 8'h41);
+//        write_and_wait(20'd10, 1, 8'h42);
+//
+//        read_and_wait(20'd8, 1);
+//        $display("SR+0 = %x\n", D_from_bus);
+//        read_and_wait(20'd9, 1);
+//        $display("SR+1 = %x\n", D_from_bus);
 
-        write_and_wait(20'd8, 1, 0);
-        $display("write SRR\n");
-        write_and_wait(20'd9, 1, 8'h6);
-        $display("write CR\n");
+        recv_from_keyboard(8'haa, 0);
+        recv_from_keyboard(8'hbb, 0);
 
-        write_and_wait(20'd10, 1, 8'h41);
-        write_and_wait(20'd10, 1, 8'h42);
+        read_and_wait(20'd130, 1);
+        $display("kbd = %x\n", D_from_bus);
+        read_and_wait(20'd130, 1);
+        $display("kbd = %x\n", D_from_bus);
 
-        read_and_wait(20'd8, 1);
-        $display("SR+0 = %x\n", D_from_bus);
-        read_and_wait(20'd9, 1);
-        $display("SR+1 = %x\n", D_from_bus);
+        recv_from_keyboard(8'haa, 1);
+
+        write_and_delay(20'd130, 1, 1);
+
+        recv_from_keyboard(8'hcc, 0);
+        recv_from_keyboard(8'hdd, 0);
+
+        read_and_wait(20'd130, 1);
+        $display("kbd = %x\n", D_from_bus);
 
         $stop;
     end

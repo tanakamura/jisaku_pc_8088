@@ -1,3 +1,4 @@
+//#define NDEBUG
 #include "Vps2_keyboard.h"
 #include <verilated_vcd_c.h>
 #include <assert.h>
@@ -76,11 +77,11 @@ recv_from_keyboard(Clock *clk, Vps2_keyboard *top, VerilatedVcdC *tfp, unsigned 
 static void
 reset_ps2(Clock *clk, Vps2_keyboard *top, VerilatedVcdC *tfp)
 {
-    top->rst = 1;
-    for (int i=0; i<2; i++) {
-        busclock(clk, top, tfp);
-    }
-    top->rst = 0;
+    top->rstn = 0;
+    busclock(clk, top, tfp);
+    busclock(clk, top, tfp);
+    top->rstn = 1;
+    busclock(clk, top, tfp);
 }
 
 
@@ -127,6 +128,22 @@ main()
     reset_ps2(&C, top, tfp);
 
     recv_from_keyboard(&C, top, tfp, 1, 1);
+    for (int i=0; i<5000; i++) {
+        busclock(&C, top, tfp);
+    }
+    assert(top->frame_error == 1);
+
+    reset_ps2(&C, top, tfp);
+
+
+    recv_from_keyboard(&C, top, tfp, 1, 0, 0);
+    for (int i=0; i<5000; i++) {
+        busclock(&C, top, tfp);
+    }
+    assert(top->parity_error == 1);
+    reset_ps2(&C, top, tfp);
+
+    recv_from_keyboard(&C, top, tfp, 1, 0, 1, 0);
     for (int i=0; i<5000; i++) {
         busclock(&C, top, tfp);
     }

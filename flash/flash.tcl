@@ -17,7 +17,7 @@ set wd [pwd]
 #flash write_image $wd/../jisaku_pc/jisaku_pc.runs/impl_1/jisaku_pc_top.bit 0x000000
 
 flash erase_address 0x800000 0x010000
-flash write_image ../demo/cmain.bin 0x800000
+flash write_image ../demo/keyboard_dump.bin 0x800000
 
 pld load 0 $wd/../jisaku_pc/jisaku_pc.runs/impl_1/jisaku_pc_top.bit
 
