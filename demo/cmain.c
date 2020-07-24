@@ -1,8 +1,7 @@
 #include <conio.h>
 #include "addr.h"
 
-extern const unsigned char alphabet_font[];
-extern const unsigned char number_font[];
+extern const unsigned char fonts[];
 
 static void
 spi_out(unsigned char b)
@@ -45,21 +44,11 @@ disp_char(unsigned char c)
 {
     int i;
     const unsigned char *p;
-    if (c>='0' && c<='9') {
-        p = &number_font[(c-'0') * 6];
-    } else if (c>='a' && c<='z') {
-        p = &alphabet_font[(c-'a') * 6];
-    } else if (c>='A' && c<='Z') {
-        p = &alphabet_font[(c-'A') * 6];
-    } else {
-        to_data();
-        for (i=0; i<7; i++) {
-            spi_out(0);
-        }
-        spi_out(0);
-        to_command();
+    if ((c < ' ') || (c > '~')) {
         return;
     }
+
+    p = &fonts[(c-' ') * 6];
 
     to_data();
     for (i=0; i<6; i++) {
@@ -163,7 +152,7 @@ void cmain()
    to_command();
 
    set_cursor(0,0);
-   disp_str("Hello WorldDDDDDDDDDDDDDD");
+   disp_str("Hello World.");
 
    while (1) {
        int st;

@@ -5,8 +5,9 @@ struct font {
     char data[7][6];
 };
 
-struct font alphabet[26];
-struct font number[10];
+#define NUM_GLYPHS ('~' - ' ' + 1)
+
+struct font glyphs[NUM_GLYPHS];
 
 void
 read_font(FILE *fp, struct font *f, char cc)
@@ -28,6 +29,14 @@ read_font(FILE *fp, struct font *f, char cc)
         if (c != '.') {
             printf("2:invalid char @ '%c'\n", cc);
             exit(1);
+        }
+
+        if (y == 0) {
+            c = fgetc(fp);
+            if (c != cc) {
+                printf("3:char mismatch '%c' != '%c'\n", cc, c);
+                exit(1);
+            }
         }
 
         c = fgetc(fp);
@@ -57,25 +66,22 @@ int main()
 {
     FILE *fp = fopen("fonts.dat", "rb");
 
-    for (int i=0; i<26; i++) {
-        read_font(fp, &alphabet[i], 'A' + i);
-    }
-
-    for (int i=0; i<10; i++) {
-        read_font(fp, &number[i], '0' + i);
+    for (int i=0; i<NUM_GLYPHS; i++) {
+        read_font(fp, &glyphs[i], i+' ');
     }
 
     FILE *out = fopen("fonts.asm", "wb");
     FILE *c_out = fopen("cfonts.c", "wb");
 
-    fprintf(c_out, "const unsigned char alphabet_font[] = {\n");
+    fprintf(c_out, "const unsigned char fonts[] = {\n");
+    fprintf(out, "fonts:\n");
 
-    for (int i=0; i<26; i++) {
-        fprintf(out, "alphabet_%c db ", 'A' + i);
+    for (int i=0; i<NUM_GLYPHS; i++) {
+        fprintf(out, "	db ");
         for (int x=0; x<6; x++) {
             int byte = 0;
             for (int y=0; y<7; y++) {
-                if (alphabet[i].data[y][x]) {
+                if (glyphs[i].data[y][x]) {
                     byte |= 1 << (y+1);
                 }
             }
@@ -87,23 +93,6 @@ int main()
         fprintf(c_out, "\n");
     }
 
-    fprintf(c_out, "};\nconst unsigned char number_font[] = {\n");
-
-    for (int i=0; i<10; i++) {
-        fprintf(out, "number_%c db ", '0' + i);
-        for (int x=0; x<6; x++) {
-            int byte = 0;
-            for (int y=0; y<7; y++) {
-                if (number[i].data[y][x]) {
-                    byte |= 1 << y;
-                }
-            }
-
-            fprintf(out, "0x%02x, ", byte);
-            fprintf(c_out, "0x%02x, ", byte);
-        }
-        fprintf(out, "\n");
-    }
     fprintf(c_out, "};\n");
-    
+
 }
