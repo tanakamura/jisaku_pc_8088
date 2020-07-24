@@ -13,8 +13,8 @@ init
 jtagspi_init 0 bscan_spi_xc7a35t.bit
 set wd [pwd]
 
-flash erase_address 0x000000 0x400000
-flash write_image $wd/../jisaku_pc/jisaku_pc.runs/impl_1/jisaku_pc_top.bit 0x000000
+#flash erase_address 0x000000 0x400000
+#flash write_image $wd/../jisaku_pc/jisaku_pc.runs/impl_1/jisaku_pc_top.bit 0x000000
 
 flash erase_address 0x800000 0x010000
 flash write_image ../demo/cmain.bin 0x800000
