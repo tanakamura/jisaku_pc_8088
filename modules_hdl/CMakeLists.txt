@@ -10,6 +10,7 @@ verilate(addr_conv
 
 add_executable(i8088_cpu i8088_cpu_main.cpp)
 add_executable(i8088_top i8088_top_main.cpp)
+add_executable(ps2keyboard ps2keyboard_main.cpp)
 
 
 verilate(i8088_cpu
@@ -20,6 +21,11 @@ verilate(i8088_cpu
 verilate(i8088_top
   SOURCES ../top_hdl/i8088_top.sv i8088_cpu.sv ../firmware/i8088_rom.v ../firmware/rom.v
   VERILATOR_ARGS  --timescale-override 1ns/1ps --trace --top-module jisaku_pc_top -DGENERATE_VERILATOR=1
+)
+
+verilate(ps2keyboard
+  SOURCES ps2_keyboard.sv
+  VERILATOR_ARGS  --timescale-override 1ns/1ps --trace --top-module ps2_keyboard -DGENERATE_VERILATOR=1
 )
 
 add_executable(genhex ../firmware/genhex.c)

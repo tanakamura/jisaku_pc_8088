@@ -12,7 +12,7 @@ pack_file: pack_file.c
 	wasm -c -mt -fo=$@ $<
 
 %.o: %.c
-	wcl -inline-functions -0 -mt -os -oi -s -c -fo=$@ $<
+	wcl -inline-functions -0 -ms -ox -s -c -fo=$@ $<
 
 conv_fonts: conv_fonts.c
 
