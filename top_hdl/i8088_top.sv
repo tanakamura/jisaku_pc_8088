@@ -128,6 +128,7 @@ module jisaku_pc_top(
     assign ck_io7 = READY;
     wire CPU_CLK;
     assign ck_io6 = CPU_CLK;
+    wire CPU_CLK_RISE;
     wire CPU_RESET;
     wire CPU_RESET_32;
     assign ck_io5 = CPU_RESET_32;
@@ -156,7 +157,7 @@ module jisaku_pc_top(
 
     reg [1:0] div_cnt_25mhz;    // 41.666
     reg [4:0] div15_counter;
-    reg [8:0] reset_counter;
+    reg [7:0] reset_counter;
 
     wire clk_25mhz_logic;
     assign clk_25mhz_logic = div_cnt_25mhz[1];
@@ -227,6 +228,7 @@ module jisaku_pc_top(
         end
     end
     assign CPU_CLK = div15_counter < 5'd5;
+    assign CPU_CLK_RISE = div15_counter == 5'd0;
 
     always @(posedge CPU_CLK) begin // hold 31cycle
         if (CPU_RESET) begin
@@ -243,21 +245,22 @@ module jisaku_pc_top(
     wire INTR;
     wire NMI;
 
-    reg r_nRD_cpu;
-    reg r_nWR_cpu;
-    reg [7:0] r_AD8_cpu;
-    reg r_IO_nM_cpu;
+    reg r_nRD;
+    reg r_nWR;
+    reg [7:0] r_AD8;
+    reg r_IO_nM;
+    reg [19:0] r_A;
 
-    reg [19:0] r_A_cpu;
+    always @(posedge clk_83mhz) begin
+        if (CPU_CLK_RISE) begin
+            r_nRD <= nRD;
+            r_nWR <= nWR;
+            r_AD8 <= AD7_0_in;
+            r_IO_nM <= IO_nM;
 
-    always @(posedge CPU_CLK) begin
-        r_nRD_cpu <= nRD;
-        r_nWR_cpu <= nWR;
-        r_AD8_cpu <= AD7_0_in;
-        r_IO_nM_cpu <= IO_nM;
-
-        if (ALE) begin
-            r_A_cpu <= {A19_8, AD7_0_in};
+            if (ALE) begin
+                r_A <= {A19_8, AD7_0_in};
+            end
         end
     end
 
@@ -269,25 +272,25 @@ module jisaku_pc_top(
 
     i8088_cpu cpu(.*,           // AXI
                   .PUSH_BUTTON(btn),
-                  .I8088_CLK(CPU_CLK),
+                  .I8088_CLK_RISE(CPU_CLK),
                   .AXI_CLK(clk_83mhz),
                   .LED(led),
                   .GPIO(gpio),
                   .RESETN(PERIPHERAL_RESETN),
-                  .A_cpu(r_A_cpu),
-                  .AD8_in_cpu(r_AD8_cpu),
-                  .AD8_out_cpu(AD7_0_out),
-                  .AD8_enout_cpu(AD7_0_enout),
-                  .nRD_cpu(r_nRD_cpu),
-                  .nWR_cpu(r_nWR_cpu),
-                  .IO_nM_cpu(r_IO_nM_cpu),
-                  .ALE_cpu(ALE),
-                  //.DT_nR_cpu(DT_nR),
-                  //.nDEN_cpu(nDEN),
-                  //.nSSO_cpu(nSSO),
-                  .INTR_cpu(INTR),
-                  .NMI_cpu(NMI),
-                  .READY_cpu(READY),
+                  .A(r_A),
+                  .AD8_in(r_AD8),
+                  .AD8_out(AD7_0_out),
+                  .AD8_enout(AD7_0_enout),
+                  .nRD(r_nRD),
+                  .nWR(r_nWR),
+                  .IO_nM(r_IO_nM),
+                  .ALE(ALE),
+                  //.DT_nR(DT_nR),
+                  //.nDEN(nDEN),
+                  //.nSSO(nSSO),
+                  .INTR(INTR),
+                  .NMI(NMI),
+                  .READY(READY),
                   .dbus_DIR(bus_DIR),
 
                   .ps2_clk(ps2_clk),

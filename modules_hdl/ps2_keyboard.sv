@@ -23,7 +23,6 @@ module ps2_keyboard
     reg [7:0] fifo [0:(1<<FIFO_DEPTH_BITS)-1];
     reg [FIFO_DEPTH_BITS-1:0] r_fifo_head;
     reg [FIFO_DEPTH_BITS-1:0] r_fifo_tail;
-    reg [7:0] r_fifo_top;
 
     reg parity;
     reg r_frame_error;
@@ -35,12 +34,17 @@ module ps2_keyboard
     assign parity_error = r_parity_error;
     assign rx_overflow = r_rx_overflow;
     assign rx_empty = (r_fifo_head == r_fifo_tail);
-    assign fifo_top = r_fifo_top;
+    assign fifo_top = fifo[r_fifo_tail];
 
     wire [FIFO_DEPTH_BITS-1:0] next_head = r_fifo_head + 1;
     wire rx_full = (next_head == r_fifo_tail);
 
     reg clk_prev;
+
+    reg [2:0] r_buf_cnt;
+    reg [7:0] clk_buf;
+
+    wire clk_stable = |clk_buf;
 
     always @(posedge busclk) begin
         if (!rstn) begin
@@ -51,58 +55,59 @@ module ps2_keyboard
             r_rx_overflow <= 0;
             r_fifo_head <= 0;
             r_fifo_tail <= 0;
-            r_fifo_top <= 0;
+            r_buf_cnt <= 0;
             clk_prev <= 1;
         end else begin
-            if (clk_prev == 1 && ps2_clk == 0) begin // clk : fall to zero
+            if (clk_prev == 1 && clk_stable == 0) begin // clk : fall to zero
                 case (pos)
                   4'd0:                 // start
                     if (ps2_data == 0) begin
-                        pos <= 1;
+                        pos <= 4'd12;
                         parity <= 0;
                     end else begin
                         /* frame error */
                         r_frame_error <= 1;
                     end
 
-                  4'd1: begin           // d0
+                  4'd12: begin           // d0
                       current[0:0] <= ps2_data;
                       parity <= parity ^ ps2_data;
-                      pos <= 2;
+                      pos <= 4'd2;
                   end
+
                   4'd2: begin           // d1
                       current[1:1] <= ps2_data;
                       parity <= parity ^ ps2_data;
-                      pos <= 3;
+                      pos <= 4'd3;
                   end
                   4'd3: begin           // d2
                       current[2:2] <= ps2_data;
                       parity <= parity ^ ps2_data;
-                      pos <= 4;
+                      pos <= 4'd4;
                   end
                   4'd4: begin           // d3
                       current[3:3] <= ps2_data;
                       parity <= parity ^ ps2_data;
-                      pos <= 5;
+                      pos <= 4'd5;
                   end
                   4'd5: begin           // d4
                       current[4:4] <= ps2_data;
                       parity <= parity ^ ps2_data;
-                      pos <= 6;
+                      pos <= 4'd6;
                   end
                   4'd6: begin           // d5
                       current[5:5] <= ps2_data;
                       parity <= parity ^ ps2_data;
-                      pos <= 7;
+                      pos <= 4'd7;
                   end
                   4'd7: begin           // d6
                       current[6:6] <= ps2_data;
                       parity <= parity ^ ps2_data;
-                      pos <= 8;
+                      pos <= 4'd8;
                   end
                   4'd8: begin           // d7
                       parity <= parity ^ ps2_data;
-                      pos <= 9;
+                      pos <= 4'd9;
 
                       if (rx_full) begin
                           r_rx_overflow <= 1;
@@ -116,23 +121,25 @@ module ps2_keyboard
                       if ((parity ^ ps2_data) != 1) begin
                           r_parity_error <= 1;
                       end
-                      pos <= 10;
+                      pos <= 4'd10;
                   end
 
                   4'd10: begin          // stop
                       if (ps2_data != 1) begin
                           r_frame_error <= 1;
                       end
-                      pos <= 0;
+                      pos <= 4'd0;
                   end
 
                   default:
-                    pos <= 0;
+                    ;
                 endcase
             end
 
-            clk_prev <= ps2_clk;
-            r_fifo_top <= fifo[r_fifo_tail];
+            clk_prev <= clk_stable;
+
+            clk_buf[r_buf_cnt] <= ps2_clk;
+            r_buf_cnt <= r_buf_cnt + 1;
 
             if (pop & !rx_empty) begin
                 r_fifo_tail <= r_fifo_tail+1;

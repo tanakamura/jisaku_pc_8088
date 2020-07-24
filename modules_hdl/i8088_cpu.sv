@@ -31,7 +31,7 @@ module i8088_cpu
      input wire [1:0] AXI_bresp,
      input wire AXI_bvalid,
 
-     input wire I8088_CLK,
+     input wire I8088_CLK_RISE,
      input wire AXI_CLK,
 
      output wire [3:0] LED,
@@ -43,38 +43,38 @@ module i8088_cpu
 
      input wire RESETN,
 
-     input wire [19:0] A_cpu,
-     input wire [7:0] AD8_in_cpu,
-     output wire [7:0] AD8_out_cpu,
-     output wire AD8_enout_cpu,
-     input wire nRD_cpu,
-     input wire nWR_cpu,
-     input wire IO_nM_cpu,
-     input wire ALE_cpu,
-     //input wire DT_nR_cpu,
-     //input wire nDEN_cpu,
-     //input wire nSSO_cpu,
-     output wire INTR_cpu,
-     output wire NMI_cpu,
+     input wire [19:0] A,
+     input wire [7:0] AD8_in,
+     output wire [7:0] AD8_out,
+     output wire AD8_enout,
+     input wire nRD,
+     input wire nWR,
+     input wire IO_nM,
+     input wire ALE,
+     //input wire DT_nR,
+     //input wire nDEN,
+     //input wire nSSO,
+     output wire INTR,
+     output wire NMI,
 
-     output wire READY_cpu,
+     output wire READY,
      output wire dbus_DIR
      );
 
 `include "addr_map.svh"
-    wire is_read_busclk;
-    wire [31:0] A32_busclk;
-    wire [31:0] D32_busclk;
-    wire [3:0] wstrb_busclk;
-    wire [2:0] addr_type_busclk;
+    wire req_is_read;
+    wire [31:0] A32_converted;
+    wire [31:0] D32_converted;
+    wire [3:0] wstrb_converted;
+    wire [2:0] addr_type;
 
-    wire [7:0] D_from_cpu = AD8_in_cpu;
+    wire [7:0] D_from = AD8_in;
 
     assign AXI_arprot = 3'b000;
     assign AXI_awprot = 3'b000;
 
-    wire nIORQ_cpu = ! IO_nM_cpu;
-    wire nMREQ_cpu = IO_nM_cpu;
+    wire nIORQ = ! IO_nM;
+    wire nMREQ = IO_nM;
 
     wire [7:0] rom_data;
     wire axi_busy;
@@ -99,77 +99,56 @@ module i8088_cpu
     //    L     H     => 8088 to Artix (H)
     //    H     L     => 8088 to Aritx (H)
     //    H     H     => 8088 to Artix (H)
-    assign dbus_DIR = ALE_cpu | nRD_cpu;
+    assign dbus_DIR = ALE | nRD;
 
-    reg nRD_prev;
-    reg nMREQ_prev;
-    reg nWR_prev;
-    reg nIORQ_prev;
-    reg [19:0] A_prev;
-    reg [7:0] D_from_cpu_prev;
+    reg r_nRD_prev;
+    reg r_nWR_prev;
 
-    reg nRD_busclk;
-    reg nMREQ_busclk;
-    reg nWR_busclk;
-    reg nIORQ_busclk;
-    reg [19:0] A_busclk;
-    reg [7:0] r_D_from_cpu_busclk;
-    wire [7:0] D_from_cpu_busclk;
+    reg r_rdaddr_fetch;
+    reg r_wraddr_fetch;
+    reg r_wrdata_fetch;
 
-    wire [7:0] D_from_cpu_valid = (! nWR_cpu)?D_from_cpu:0;
-    wire from_cpu_match = (nRD_prev == nRD_cpu &&
-                           nWR_prev == nWR_cpu &&
-                           nMREQ_prev == nMREQ_cpu &&
-                           nIORQ_prev == nIORQ_cpu &&
-                           A_prev == A_cpu &&
-                           D_from_cpu_prev == D_from_cpu_valid);
-
-    always @(posedge AXI_CLK) begin
-        if (from_cpu_match)
-        begin
-            nRD_busclk <= nRD_cpu;
-            nWR_busclk <= nWR_cpu;
-            nMREQ_busclk <= nMREQ_cpu;
-            nIORQ_busclk <= nIORQ_cpu;
-            A_busclk <= A_cpu;
-            r_D_from_cpu_busclk <= D_from_cpu_valid;
-        end
-
-        nRD_prev <= nRD_cpu;
-        nWR_prev <= nWR_cpu;
-        nMREQ_prev <= nMREQ_cpu;
-        nIORQ_prev <= nIORQ_cpu;
-        A_prev <= A_cpu;
-        D_from_cpu_prev <= D_from_cpu_valid;
-    end
-
-    assign D_from_cpu_busclk = from_cpu_match ? D_from_cpu : r_D_from_cpu_busclk;
-    //assign D_from_cpu_busclk = r_D_from_cpu_busclk;
     wire [31:0] AXI_araddr;
     wire [31:0] AXI_awaddr;
 
     assign AXI_araddr33 = {1'b0, AXI_araddr};
     assign AXI_awaddr33 = {1'b0, AXI_awaddr};
 
+    addr_converter#(.ADDR_WIDTH(20), .IS_Z80(0))
+    addr_conv
+      (.IO(! nIORQ),
+       .MEM(! nMREQ),
+       .RD(! nRD),
+       .WR(! nWR),
+        
+       .A(A),
+       .D(AD8_in),
+
+       .A32(A32_converted),
+       .D32(D32_converted),
+       .wstrb(wstrb_converted),
+
+       .is_read(req_is_read),
+       .addr_type(addr_type)
+       );
+
     axi_capture#(.ADDR_WIDTH(32))
-    axi_cap(.A(A32_busclk),
-            .D(D32_busclk),
+    axi_cap(.A(A32_converted),
+            .D(D32_converted),
             .axi_busy(axi_busy),
             .read_data(axi_read_data),
-            .rdaddr_fetch(rdaddr_fetch & (addr_type_busclk == ADDR_TYPE_AXI)),
-            .wraddr_fetch(wraddr_fetch & (addr_type_busclk == ADDR_TYPE_AXI)),
-            .wrdata_fetch(wrdata_fetch & (addr_type_busclk == ADDR_TYPE_AXI)),
+            .rdaddr_fetch(r_rdaddr_fetch & (addr_type == ADDR_TYPE_AXI)),
+            .wraddr_fetch(r_wraddr_fetch & (addr_type == ADDR_TYPE_AXI)),
+            .wrdata_fetch(r_wrdata_fetch & (addr_type == ADDR_TYPE_AXI)),
             .AXI_CLK(AXI_CLK),
             .RESETN(RESETN),
-            .wstrb(wstrb_busclk),
+            .wstrb(wstrb_converted),
             .*
 
             );
 
-    i8088_rom rom(.ADDR(A32_busclk[7:0]),
+    i8088_rom rom(.ADDR(A32_converted[7:0]),
                   .DATA(rom_data));
-
-    reg [7:0] ram [0:65536-1];
 
     reg [3:0] LED_reg;
     reg [4:0] GPIO_reg;
@@ -177,81 +156,53 @@ module i8088_cpu
     assign LED = LED_reg; 
     assign GPIO = GPIO_reg;
 
-    var nrd_prev;
-    var nwr_prev;
-    var rdaddr_fetch;
-    var wraddr_fetch;
-    var wrdata_fetch;
-
-    addr_converter#(.ADDR_WIDTH(20), .IS_Z80(0))
-    addr_conv
-      (.IO(! nIORQ_busclk),
-       .MEM(! nMREQ_busclk),
-       .RD(! nRD_busclk),
-       .WR(! nWR_busclk),
-        
-       .A(A_busclk),
-       .D(D_from_cpu_busclk),
-
-       .is_read(is_read_busclk),
-       .A32(A32_busclk),
-       .D32(D32_busclk),
-       .wstrb(wstrb_busclk),
-
-       .addr_type(addr_type_busclk)
-       );
-
-    wire READY_busclk = (! axi_busy);
+    wire AXI_READY = (! axi_busy);
 
     reg r_key_pop_cnt;
     reg [1:0] r_key_rst_cnt;
     reg r_READY_cpu;
-    assign READY_cpu = (r_READY_cpu & READY_busclk & (r_key_pop_cnt == 1'd0) & (r_key_rst_cnt == 2'd0));
+    assign READY = (r_READY_cpu & AXI_READY & (r_key_pop_cnt == 1'd0) & (r_key_rst_cnt == 2'd0));
 
-    always @(posedge I8088_CLK) begin
+    always @(posedge AXI_CLK) begin
         if (!RESETN) begin
             r_READY_cpu <= 0;
-        end else begin
-            r_READY_cpu <= READY_busclk;
+        end else if (I8088_CLK_RISE) begin
+            r_READY_cpu <= AXI_READY;
         end
     end
 
     reg [7:0] D_to_cpu_from_internal;
-    wire [7:0] D_to_cpu = (addr_type_busclk == ADDR_TYPE_AXI) ? axi_read_data : D_to_cpu_from_internal;
-
-    reg [7:0] ram_data;
-
-    always @(posedge AXI_CLK) begin
-        ram_data = ram[A32_busclk[15:0]];
-    end
+    wire [7:0] D_to_cpu = (addr_type == ADDR_TYPE_AXI) ? axi_read_data : D_to_cpu_from_internal;
 
     wire [7:0] kbd_fifo_top;
+    reg [7:0] r_kbd_fifo_top;
+
     wire kbd_rx_empty;
     wire kbd_frame_error;
     wire kbd_parity_error;
     wire kbd_rx_overflow;
 
-    //ps2_keyboard ps2_keyboard(.rstn(RESETN),// & (r_key_rst_cnt == 0)),
-    //                          .ps2_clk(ps2_clk),
-    //                          .ps2_data(ps2_data),
-    //
-    //                          .busclk(AXI_CLK),
-    //                          .pop(r_key_pop_cnt),
-    //                          .fifo_top(kbd_fifo_top),
-    //
-    //                          .rx_empty(kbd_rx_empty),
-    //                          .frame_error(kbd_frame_error),
-    //                          .parity_error(kbd_parity_error),
-    //                          .rx_overflow(kbd_rx_overflow)
-    //                          );
+    ps2_keyboard ps2_keyboard(.rstn(RESETN),// & (r_key_rst_cnt == 0)),
+                              .ps2_clk(ps2_clk),
+                              .ps2_data(ps2_data),
+    
+                              .busclk(AXI_CLK),
+                              .pop(r_key_pop_cnt),
+                              .fifo_top(kbd_fifo_top),
+    
+                              .rx_empty(kbd_rx_empty),
+                              .frame_error(kbd_frame_error),
+                              .parity_error(kbd_parity_error),
+                              .rx_overflow(kbd_rx_overflow)
+                              );
 
     always_comb begin
-        if (addr_type_busclk == ADDR_TYPE_INTERNAL_ROM) begin
+        if (addr_type == ADDR_TYPE_INTERNAL_ROM) begin
             D_to_cpu_from_internal = rom_data;
-        end else if (addr_type_busclk == ADDR_TYPE_INTERNAL_RAM) begin
-            D_to_cpu_from_internal = ram_data;
-        end else if (addr_type_busclk == ADDR_TYPE_INTERNAL_PERIPHERAL) begin
-            case (A_busclk[7:0])
+        end else if (addr_type == ADDR_TYPE_INTERNAL_RAM) begin
+            D_to_cpu_from_internal = 0;
+        end else if (addr_type == ADDR_TYPE_INTERNAL_PERIPHERAL) begin
+            case (A[7:0])
               8'd128: D_to_cpu_from_internal = {4'd0, PUSH_BUTTON}; // button
               8'd129: D_to_cpu_from_internal = {4'd0, // keyboard status
                                                 kbd_frame_error,
@@ -259,7 +210,7 @@ module i8088_cpu
                                                 kbd_rx_overflow,
                                                 kbd_rx_empty};
               8'd130: begin 
-                  D_to_cpu_from_internal = kbd_fifo_top;
+                  D_to_cpu_from_internal = r_kbd_fifo_top;
               end
               default: D_to_cpu_from_internal = 8'd0;
             endcase
@@ -268,69 +219,34 @@ module i8088_cpu
         end
     end
 
-    assign AD8_out_cpu = D_to_cpu;
-    assign AD8_enout_cpu = !ALE_cpu && !nRD_cpu;
+    assign AD8_out = D_to_cpu;
+    assign AD8_enout = !ALE && !nRD;
 
-    assign INTR_cpu = 0;
-    assign NMI_cpu = 0;
-
-
-    reg [6:0] current;
-    reg [3:0] pos;
-    reg [7:0] fifo [0:(1<<FIFO_DEPTH_BITS)-1];
-    reg [FIFO_DEPTH_BITS-1:0] r_fifo_head;
-    reg [FIFO_DEPTH_BITS-1:0] r_fifo_tail;
-    reg [7:0] r_fifo_top;
-
-    reg parity;
-    reg r_frame_error;
-    reg r_parity_error;
-    reg r_rx_overflow;
-
-    // output
-    assign kbd_frame_error = r_frame_error;
-    assign kbd_parity_error = r_parity_error;
-    assign kbd_rx_overflow = r_rx_overflow;
-    assign kbd_rx_empty = (r_fifo_head == r_fifo_tail);
-    assign kbd_fifo_top = r_fifo_top;
-
-    wire [FIFO_DEPTH_BITS-1:0] next_head = r_fifo_head + 1;
-    wire rx_full = (next_head == r_fifo_tail);
-
-    reg r_clk_prev;
+    assign INTR = 0;
+    assign NMI = 0;
 
     always @(posedge AXI_CLK) begin
         if (!RESETN) begin
             LED_reg <= 0;
             GPIO_reg <= 0;
-            wrdata_fetch <= 0;
-            wraddr_fetch <= 0;
-            rdaddr_fetch <= 0;
-            nwr_prev <= 1;
-            nrd_prev <= 1;
+            r_wrdata_fetch <= 0;
+            r_wraddr_fetch <= 0;
+            r_rdaddr_fetch <= 0;
+            r_nWR_prev <= 1;
+            r_nRD_prev <= 1;
             r_key_pop_cnt <= 0;
             r_key_rst_cnt <= 0;
-
-            /* kbd */
-            pos <= 4'd0;
-            current <= 7'd0;
-            r_frame_error <= 0;
-            r_parity_error <= 0;
-            r_rx_overflow <= 0;
-            r_fifo_head <= 0;
-            r_fifo_tail <= 0;
-            r_fifo_top <= 0;
-            r_clk_prev <= 1;
         end else begin
-            if (rdaddr_fetch) begin
-                rdaddr_fetch <= 0;
+            if (r_rdaddr_fetch) begin
+                r_rdaddr_fetch <= 0;
             end else begin
-                if (nrd_prev == 1 && nRD_busclk == 0) begin
-                    rdaddr_fetch <= 1;
+                if (r_nRD_prev == 1 && nRD == 0) begin
+                    r_rdaddr_fetch <= 1;
 
-                    if (addr_type_busclk == ADDR_TYPE_INTERNAL_PERIPHERAL) begin
-                        case (A_busclk[7:0]) 
+                    if (addr_type == ADDR_TYPE_INTERNAL_PERIPHERAL) begin
+                        case (A[7:0]) 
                           8'd130: begin
+                              r_kbd_fifo_top <= kbd_fifo_top;
                               r_key_pop_cnt <= 1;
                           end
 
@@ -340,28 +256,24 @@ module i8088_cpu
                 end
             end
 
-            if (wraddr_fetch) begin
-                wraddr_fetch <= 0;
+            if (r_wraddr_fetch) begin
+                r_wraddr_fetch <= 0;
             end else begin
-                if (nwr_prev == 1 && nWR_busclk == 0) begin
-                    wraddr_fetch <= 1;
+                if (r_nWR_prev == 1 && nWR == 0) begin
+                    r_wraddr_fetch <= 1;
                 end
             end
 
-            if (wrdata_fetch) begin
-                wrdata_fetch <= 0;
+            if (r_wrdata_fetch) begin
+                r_wrdata_fetch <= 0;
             end else begin
-                if (nwr_prev == 1 && nWR_busclk == 0) begin
-                    wrdata_fetch <= 1;
+                if (r_nWR_prev == 1 && nWR == 0) begin
+                    r_wrdata_fetch <= 1;
 
-                    if (addr_type_busclk == ADDR_TYPE_INTERNAL_RAM) begin
-                        ram[A32_busclk[15:0]] <= D_from_cpu_busclk;
-                    end
-
-                    if (addr_type_busclk == ADDR_TYPE_INTERNAL_PERIPHERAL) begin
-                        case (A_busclk[7:0])
-                          8'd128:LED_reg <= D_from_cpu_busclk[3:0];
-                          8'd129:GPIO_reg <= D_from_cpu_busclk[4:0];
+                    if (addr_type == ADDR_TYPE_INTERNAL_PERIPHERAL) begin
+                        case (A[7:0])
+                          8'd128:LED_reg <= AD8_in[3:0];
+                          8'd129:GPIO_reg <= AD8_in[4:0];
                           8'd130:r_key_rst_cnt <= 1;
                           default: ;
                         endcase 
@@ -369,8 +281,8 @@ module i8088_cpu
                 end
             end
 
-            nrd_prev <= nRD_busclk;
-            nwr_prev <= nWR_busclk;
+            r_nRD_prev <= nRD;
+            r_nWR_prev <= nWR;
 
             if (r_key_pop_cnt == 1) begin
                 r_key_pop_cnt <= 0;
@@ -379,8 +291,6 @@ module i8088_cpu
             if (r_key_rst_cnt != 0) begin
                 r_key_rst_cnt <= r_key_rst_cnt + 1;
             end
-
-            r_fifo_tail <= r_fifo_tail + 1;
         end
     end
 endmodule

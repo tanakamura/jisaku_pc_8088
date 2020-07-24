@@ -54,10 +54,7 @@ module axi_capture#(
     reg [ADDR_WIDTH-1:0] axi_raddr;
     reg [ADDR_WIDTH-1:0] axi_waddr;
 
-    var [7:0] read_data_buf;
     var [7:0] read_data_axi;
-
-    var axi_busy_buf;
 
     var rdaddr_fetched;
     var wraddr_fetched;
@@ -73,11 +70,9 @@ module axi_capture#(
     assign AXI_awaddr = {axi_waddr[ADDR_WIDTH-1:2], 2'b00};
     assign AXI_araddr = {axi_raddr[ADDR_WIDTH-1:2], 2'b00};
     assign AXI_arvalid = axi_arvalid;
-    assign read_data = read_data_buf;
+    assign read_data = read_data_axi;
 
-    wire axi_busy_axi = axi_awvalid | axi_wvalid | axi_arvalid | axi_rready | bresp_wait;
-    wire axi_to_bus_match = ((axi_busy_buf == axi_busy_axi) && (read_data_buf == read_data_axi));
-    assign axi_busy = axi_busy_axi || ! axi_to_bus_match;
+    assign axi_busy = axi_awvalid | axi_wvalid | axi_arvalid | axi_rready | bresp_wait;
 
     always @(posedge AXI_CLK)
       if (!RESETN) begin
@@ -89,7 +84,6 @@ module axi_capture#(
           rdaddr_fetched <= 0;
           wraddr_fetched <= 0;
           wrdata_fetched <= 0;
-          read_data_buf <= 0;
           read_data_axi <= 0;
       end else begin
           if ((!axi_busy) && (! rdaddr_fetched) && rdaddr_fetch) begin
@@ -145,9 +139,6 @@ module axi_capture#(
 
               axi_rready <= 0;
           end
-
-          axi_busy_buf <= axi_busy_axi;
-          read_data_buf <= read_data_axi;
       end
 endmodule
 

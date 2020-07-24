@@ -25,9 +25,9 @@ cmain.com: cmain.exe
 	exe2bin -l=cs -h $< $@ 
 
 
-keyboard_dump.exe: c_start.o keyboard_dump.c cfonts.o
+keyboard_dump.exe: c_start.o keyboard_dump.o cfonts.o
 	wlink debug all op symfile format dos option map,statics,verbose F { $^ } N $@
-keyboard_dump.com: cmain.exe
+keyboard_dump.com: keyboard_dump.exe
 	exe2bin -l=cs -h $< $@ 
 
 

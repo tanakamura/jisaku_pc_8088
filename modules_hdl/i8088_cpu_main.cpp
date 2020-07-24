@@ -23,10 +23,10 @@ static void
 clock(Clock *clk, Vi8088_cpu *top, VerilatedVcdC *tfp)
 {
     int i = clk->cur;
-    if (i < 5) {
-        top->I8088_CLK = 1;
+    if (i == 5) {
+        top->I8088_CLK_RISE = 1;
     } else {
-        top->I8088_CLK = 0;
+        top->I8088_CLK_RISE = 0;
     }
 
     top->AXI_CLK = 1;
@@ -174,18 +174,18 @@ main()
 
     AXI_State axi = {};
 
-    top->nRD_cpu = 0;
-    top->nWR_cpu = 1;
-    top->IO_nM_cpu = 0;
+    top->nRD = 0;
+    top->nWR = 1;
+    top->IO_nM = 0;
 
     cpu_clock(&C, top, tfp);
-    top->A_cpu = 0xffff0;
+    top->A = 0xffff0;
     cpu_clock(&C, top, tfp);
-    top->A_cpu = 0xffff1;
+    top->A = 0xffff1;
     cpu_clock(&C, top, tfp);
 
     for (int i=0; i<16; i++) {
-        top->A_cpu = 0xfff00 + i;
+        top->A = 0xfff00 + i;
         cpu_clock(&C, top, tfp);
     }
 

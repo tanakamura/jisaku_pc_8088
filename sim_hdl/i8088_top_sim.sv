@@ -234,6 +234,9 @@ module top_sim(
         resetn = 1;
         repeat (256) @(posedge clk);
 
+        write_and_delay(1, 1, 8'haa);
+        write_and_delay(1, 1, 8'hbb);
+
 //        nRD <= 1;
 //        DT_nR <= 0;
 //        ALE <= 1;
@@ -376,23 +379,24 @@ module top_sim(
 //        read_and_wait(20'd9, 1);
 //        $display("SR+1 = %x\n", D_from_bus);
 
-        recv_from_keyboard(8'haa, 0);
-        recv_from_keyboard(8'hbb, 0);
 
-        read_and_wait(20'd130, 1);
-        $display("kbd = %x\n", D_from_bus);
-        read_and_wait(20'd130, 1);
-        $display("kbd = %x\n", D_from_bus);
-
-        recv_from_keyboard(8'haa, 1);
-
-        write_and_delay(20'd130, 1, 1);
-
-        recv_from_keyboard(8'hcc, 0);
-        recv_from_keyboard(8'hdd, 0);
-
-        read_and_wait(20'd130, 1);
-        $display("kbd = %x\n", D_from_bus);
+//        recv_from_keyboard(8'haa, 0);
+//        recv_from_keyboard(8'hbb, 0);
+//
+//        read_and_wait(20'd130, 1);
+//        $display("kbd = %x\n", D_from_bus);
+//        read_and_wait(20'd130, 1);
+//        $display("kbd = %x\n", D_from_bus);
+//
+//        recv_from_keyboard(8'haa, 1);
+//
+//        write_and_delay(20'd130, 1, 1);
+//
+//        recv_from_keyboard(8'hcc, 0);
+//        recv_from_keyboard(8'hdd, 0);
+//
+//        read_and_wait(20'd130, 1);
+//        $display("kbd = %x\n", D_from_bus);
 
         $stop;
     end

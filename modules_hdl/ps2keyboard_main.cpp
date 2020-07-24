@@ -31,7 +31,7 @@ busclock(Clock *clk, Vps2_keyboard *top, VerilatedVcdC *tfp)
 static void
 ps2clk(Clock *clk, Vps2_keyboard *top, VerilatedVcdC *tfp)
 {
-    top->clk = 0;
+    top->ps2_clk = 0;
 
     /* 100MHz / 10Khz = 10000 */
 
@@ -39,7 +39,7 @@ ps2clk(Clock *clk, Vps2_keyboard *top, VerilatedVcdC *tfp)
         busclock(clk, top, tfp);
     }
 
-    top->clk = 1;
+    top->ps2_clk = 1;
 
     for (int i=0; i<5000; i++) {
         busclock(clk, top, tfp);
@@ -50,22 +50,22 @@ static void
 recv_from_keyboard(Clock *clk, Vps2_keyboard *top, VerilatedVcdC *tfp, unsigned char c, int start=0, int parity=1, int stop=1)
 {
     // start
-    top->data = start;
+    top->ps2_data = start;
     ps2clk(clk, top, tfp);
 
     // data
     for (int i=0; i<8; i++) {
         int d = (c>>i)&1;
-        top->data = d;
+        top->ps2_data = d;
         ps2clk(clk, top, tfp);
         parity ^= d;
     }
 
-    top->data = parity;
+    top->ps2_data = parity;
     ps2clk(clk, top, tfp);
 
     // stop
-    top->data = stop;
+    top->ps2_data = stop;
     ps2clk(clk, top, tfp);
 
     for (int i=0; i<5000*2; i++) {
