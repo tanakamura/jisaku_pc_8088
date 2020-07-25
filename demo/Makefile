@@ -1,4 +1,4 @@
-all : blink_led.bin ram_access.bin button_led.bin display.bin cmain.bin keyboard_dump.bin
+all : blink_led.bin ram_access.bin button_led.bin display.bin cmain.bin keyboard_dump.bin term.bin
 
 %.com: %.s
 	nasm -l $<.lst -o $@ $<
@@ -19,16 +19,20 @@ conv_fonts: conv_fonts.c
 cfonts.c: fonts.dat conv_fonts
 	./conv_fonts
 
-cmain.exe: c_start.o cmain.o cfonts.o
+cmain.exe: c_start.o cmain.o cfonts.o common.o
 	wlink debug all op symfile format dos option map,statics,verbose F { $^ } N $@
 cmain.com: cmain.exe
 	exe2bin -l=cs -h $< $@ 
 
 
-keyboard_dump.exe: c_start.o keyboard_dump.o cfonts.o
+keyboard_dump.exe: c_start.o keyboard_dump.o cfonts.o common.o
 	wlink debug all op symfile format dos option map,statics,verbose F { $^ } N $@
-keyboard_dump.com: keyboard_dump.exe
-	exe2bin -l=cs -h $< $@ 
+
+%.com: %.exe
+	exe2bin -l=cs -h $< $@
+
+term.exe: c_start.o term.o cfonts.o keyboard.o common.o
+	wlink debug all op symfile format dos option map,statics,verbose F { $^ } N $@
 
 
 clean:
