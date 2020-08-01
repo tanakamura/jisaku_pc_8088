@@ -146,3 +146,15 @@ spi_display_to_command()
     outp(GPIO0, 2);              /* command */
 }
 
+
+void
+memset(void *dst, unsigned char val, unsigned int length)
+{
+    unsigned char *p = (char*)dst;
+    unsigned int i;
+    for (i=0; i<length; i++) {
+        p[i] = val;
+    }
+}
+
+const char hextbl[] = "0123456789abcdef";

@@ -33,7 +33,6 @@ void cmain()
         spi_display_out(0);
     }
     spi_display_to_command();
-
     spi_display_set_cursor(0,0);
 
     init_keyboard_driver(&drv);

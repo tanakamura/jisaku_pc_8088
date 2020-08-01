@@ -1,4 +1,4 @@
-all : blink_led.bin ram_access.bin button_led.bin display.bin cmain.bin keyboard_dump.bin term.bin
+all : blink_led.bin ram_access.bin button_led.bin display.bin cmain.bin keyboard_dump.bin term.bin pong.bin
 
 %.com: %.s
 	nasm -l $<.lst -o $@ $<
@@ -32,6 +32,9 @@ keyboard_dump.exe: c_start.o keyboard_dump.o cfonts.o common.o
 	exe2bin -l=cs -h $< $@
 
 term.exe: c_start.o term.o cfonts.o keyboard.o common.o
+	wlink debug all op symfile format dos option map,statics,verbose F { $^ } N $@
+
+pong.exe: c_start.o pong.o cfonts.o keyboard.o common.o
 	wlink debug all op symfile format dos option map,statics,verbose F { $^ } N $@
 
 
